@@ -14,6 +14,15 @@ const pubkey = (pub: Pub | Pick<Pub, "id">) => ["pub", pub.id] as const;
 
 const countkey = ["count", "pub"] as const;
 
+export const dois = async () =>
+  new Set(
+    (await Array.fromAsync(keys({ prefix: ["pub"] })))
+      .map(([, id]) => id as string).filter((id) => isDoiUrl(id)),
+  );
+
+export const doinames = async () =>
+  new Set([...(await dois())].map((url) => doiname(url)));
+
 /** Get pub from KV */
 export const getPub = async (id: string) =>
   (await kv.get<Pub>(pubkey({ id })))?.value;
@@ -63,6 +72,9 @@ export const insertPub = async (pub: Pub) => {
 /** Store publicaton in KV */
 export const setPub = async (pub: Pub) => await kv.set(pubkey(pub), pub);
 
+export const setPubCount = async (n: number) =>
+  await kv.set(["count", "pub"], new Deno.KvU64(BigInt(n)));
+
 /** Lookup Crossref DOI and insert both work and pub  */
 const insertPubFromCrossrefDoi = async (doi: string) => {
   const work = await getOrLookupCrossrefWork(doi);
@@ -84,12 +96,3 @@ const insertPubFromDatacite = async (_doi: string) => {
   //   `Cannot insert "${doi}": DataCite DOIs are not yet supported`,
   // );
 };
-
-export const dois = async () =>
-  new Set(
-    (await Array.fromAsync(keys({ prefix: ["pub"] })))
-      .map(([, id]) => id as string).filter((id) => isDoiUrl(id)),
-  );
-
-export const doinames = async () =>
-  new Set([...(await dois())].map((url) => doiname(url)));

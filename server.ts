@@ -10,7 +10,7 @@ import type { Pub } from "./pub/pub_types.ts";
 import type { CrossrefWork } from "./crossref/types.ts";
 
 import { refreshDoiPubs } from "./kv/refresh.ts";
-Deno.cron("refresh", "5 5 * * *", () => {
+Deno.cron("refresh", "13 13 * * *", () => {
   refreshDoiPubs();
 });
 

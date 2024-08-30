@@ -1,5 +1,5 @@
 #!/usr/bin/env -S deno run --env-file --allow-env=DENO_KV_PATH,DENO_KV_ACCESS_TOKEN --allow-read=./data --allow-net=dois.deno.dev,doi.org,api.crossref.org,api.deno.com,us-east4.txnproxy.deno-gcp.net --allow-write=./data
-import { doinames, insertPub, setPub } from "./pub.ts";
+import { doinames, insertPub, setPub, setPubCount } from "./pub.ts";
 import { getCrossrefWork, setCrossrefWork } from "./crossref.ts";
 
 import { isDoiName } from "../doi/url.ts";
@@ -49,13 +49,13 @@ export const bootstrap = async (url: URL, dest: URL) => {
           }
         }
       }
-      if (true || doi && !names.has(doi)) {
+      if (doi && !names.has(doi)) {
         const pubcr = work ? pubFromCrossrefWork(work as CrossrefWork) : null;
         if (pubcr) {
           pub.created = pubcr.created;
           pub.modified = pubcr.modified;
         }
-        const res = await setPub(pub);
+        const res = await insertPub(pub);
         console.warn("insert", ["pub", pub.id], res);
       }
     }
