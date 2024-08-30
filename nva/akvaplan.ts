@@ -34,9 +34,3 @@ export async function* akvaplanNonDoiPubsInNva() {
     }
   }
 }
-
-if (import.meta.main) {
-  for await (const hit of akvaplanNonDoiPubsInNva()) {
-    console.warn(hit);
-  }
-}

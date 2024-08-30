@@ -2,7 +2,7 @@ import { CrossrefWork } from "../crossref/types.ts";
 import { workFromApi } from "../crossref/work.ts";
 import { kv } from "./kv.ts";
 
-const crossrefkey = (doi: string) => ["crossref", doi.toLowerCase()];
+export const crossrefkey = (doi: string) => ["crossref", doi.toLowerCase()];
 
 export const getCrossrefWork = async (doi: string) => {
   const key = crossrefkey(doi);
@@ -37,8 +37,11 @@ export const getOrLookupCrossrefWork = async (
 /**
  * Store Crossref work in KV (without references)
  */
-export const setCrossrefWork = async (work: CrossrefWork) => {
+export const setCrossrefWork = async (
+  work: CrossrefWork,
+  kvop: Deno.Kv | Deno.AtomicOperation = kv,
+) => {
   const key = crossrefkey(work.DOI);
   work.reference = [];
-  return await kv.set(key, work);
+  return await kvop.set(key, work);
 };

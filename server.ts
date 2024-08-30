@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno serve --allow-env=DENO_KV_PATH --watch-hmr --port 7666 --allow-net=api.crossref.org
+#!/usr/bin/env -S deno serve --env-file --allow-env=DENO_KV_PATH --watch-hmr --port 7666 --allow-net=api.crossref.org
 import { kv } from "./kv/kv.ts";
 import { getPub } from "./kv/pub.ts";
 import { kvListStreamer } from "./kv/stream.ts";
@@ -6,8 +6,13 @@ import { getOrLookupCrossrefWork } from "./kv/crossref.ts";
 import { decodedDoiUrlString } from "./doi/url.ts";
 
 import { type Route, route } from "@std/http";
-import type { Publication } from "./pub/pub_types.ts";
+import type { Pub } from "./pub/pub_types.ts";
 import type { CrossrefWork } from "./crossref/types.ts";
+
+import { refreshDoiPubs } from "./kv/refresh.ts";
+Deno.cron("refresh", "5 5 * * *", () => {
+  refreshDoiPubs();
+});
 
 const send404 = () => new Response("404 Not Found", { status: 404 });
 
@@ -71,7 +76,7 @@ const routes: Route[] = [
   {
     pattern: new URLPattern({ pathname: "/(pub)?" }),
     handler: (_request, _info, result) =>
-      streamKvList<Publication>({ prefix: ["pub"] }, result),
+      streamKvList<Pub>({ prefix: ["pub"] }, result),
   },
   {
     pattern: new URLPattern({
