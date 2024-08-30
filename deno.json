@@ -7,7 +7,7 @@
     "@std/text": "jsr:@std/text@1",
     "yup": "npm:yup@1.4.0"
   },
-  "unstable": ["kv"],
+  "unstable": ["kv", "cron"],
   "tasks": {
     "test": "DENO_KV_PATH=':memory:' deno test --unstable-kv --allow-env=DENO_KV_PATH"
   }

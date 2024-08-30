@@ -1,17 +1,12 @@
-import { Publication } from "./pub_types.ts";
 import {
   array,
   date,
-  //type InferType,
+  type InferType,
   number,
   object,
-  ObjectSchema,
   string,
   ValidationError,
 } from "yup";
-
-const dateTransform = (_current: unknown, original: string | Date) =>
-  new Date(original);
 
 const authorSchema = object({
   family: string().default(""),
@@ -19,23 +14,24 @@ const authorSchema = object({
   name: string().optional(),
 });
 
-// FIXME Add modified date to Publication schema
-const pubSchema: ObjectSchema<Publication> = object({
+const pubSchema = object({
   id: string().required(),
-  published: date().required().transform(dateTransform),
-  printed: date().optional().transform(dateTransform),
+  published: string().required(),
+  printed: date().optional(),
   type: string().required(),
   container: string().default(""),
   title: string().required(),
   authors: array().required().of(authorSchema),
-  doi: string().required(),
+  doi: string().optional(),
   license: string().optional(),
   cites: number().optional(),
   pdf: string().optional(),
   reg: string().optional(),
+  created: date().required(),
+  modified: date().required().default(new Date()),
 });
 
-//export interface PublicationSchema extends InferType<typeof pubSchema> {}
+export interface Pub extends InferType<typeof pubSchema> {}
 
 export const validatePub = async (value: unknown) => {
   try {

@@ -1,6 +1,6 @@
 import type { CrossrefWork } from "../crossref/types.ts";
 import { decodedDoiUrlString } from "../doi/url.ts";
-import type { Publication } from "./pub_types.ts";
+import type { Pub } from "./pub_types.ts";
 
 const dateFromParts = (p: [number, number, number?]) =>
   p.map((n, i) => 0 === i ? String(n) : String(n).padStart(2, "0")).join("-");
@@ -14,12 +14,13 @@ export const pubFromCrossrefWork = (work: CrossrefWork) => {
   const authors = work.author?.map(({ family, given }) => (
     { family: family?.replace(/[0-9\*]/, ""), given }
   ));
-  const pubParts = work.published["date-parts"].at(0);
+  const pubParts = (work.published ?? work.created)?.["date-parts"].at(0);
   const published = pubParts && pubParts?.length > 0
     ? dateFromParts(pubParts)
     : null;
 
   if (!published) {
+    console.error(work);
     throw new RangeError("No published date");
   }
 
@@ -29,8 +30,10 @@ export const pubFromCrossrefWork = (work: CrossrefWork) => {
   ) => /creativecommons\.org/.test(url));
   const match = cc && cc.match(/\/(licenses|publicdomain)\/(?<code>[^/]+)/);
   const license = match && match.groups ? `cc-${match.groups.code}` : undefined;
+  const created = new Date(work.created?.["date-time"]);
+  const modified = new Date(work.indexed?.["date-time"]);
 
-  const pub: Publication = {
+  const pub: Pub = {
     id,
     doi,
     title,
@@ -40,6 +43,8 @@ export const pubFromCrossrefWork = (work: CrossrefWork) => {
     type,
     license,
     reg: "Crossref",
+    created,
+    modified,
   };
   return pub;
 };
