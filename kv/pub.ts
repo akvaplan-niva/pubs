@@ -23,6 +23,9 @@ export const dois = async () =>
 export const doinames = async () =>
   new Set([...(await dois())].map((url) => doiname(url)));
 
+/** Delete pub in KV */
+export const deletePub = async (id: string) => await kv.delete(pubkey({ id }));
+
 /** Get pub from KV */
 export const getPub = async (id: string) =>
   (await kv.get<Pub>(pubkey({ id })))?.value;
