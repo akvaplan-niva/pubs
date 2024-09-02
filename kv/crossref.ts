@@ -4,12 +4,13 @@ import { kv } from "./kv.ts";
 
 export const crossrefkey = (doi: string) => ["crossref", doi.toLowerCase()];
 
+export const deleteCrossrefWork = async (doi: string) =>
+  await kv.delete(crossrefkey(doi));
+
 export const getCrossrefWork = async (doi: string) => {
   const key = crossrefkey(doi);
-  const { versionstamp, value } = await kv.get<CrossrefWork>(key);
-  if (versionstamp) {
-    return value;
-  }
+  const { value } = await kv.get<CrossrefWork>(key);
+  return value;
 };
 
 /**
