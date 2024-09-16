@@ -1,6 +1,10 @@
 import { base } from "./defaults.ts";
 
-import type { NvaHit, NvaHitsGenerator, NvaSearchResults } from "./types.ts";
+import type {
+  NvaHitsGenerator,
+  NvaPublication,
+  NvaSearchResults,
+} from "./types.ts";
 
 export const searchUrl = (params: Iterable<string[]> = []) => {
   const url = new URL("/search/resources", base);
@@ -46,7 +50,7 @@ export async function* retrieveInBatches(
 
 export async function* retrieve(
   url: URL,
-): AsyncGenerator<NvaHit> {
+): AsyncGenerator<NvaPublication> {
   for await (const batch of retrieveInBatches(url)) {
     for (const hit of batch) {
       yield hit;

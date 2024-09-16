@@ -1,9 +1,12 @@
-export const getNvaOAuthEnv = () => ({
+import { authBase, base } from "./defaults.ts";
+
+export const getNvaConfigFromEnv = () => ({
+  base: new URL(Deno.env.get("NVA_BASE") ?? base),
   id: Deno.env.get("NVA_CLIENT_ID") ?? "",
   secret: Deno.env.get("NVA_CLIENT_SECRET") ?? "",
-  url: new URL(
+  authTokenUrl: new URL(
     "/oauth2/token",
     Deno.env.get("NVA_TOKEN_URL") ??
-      "https://nva-prod.auth.eu-west-1.amazoncognito.com",
+      authBase,
   ),
 });
