@@ -1,13 +1,13 @@
 import type { CrossrefWork } from "../crossref/types.ts";
-import { decodedDoiUrlString } from "../doi/url.ts";
-import type { Pub } from "./pub_types.ts";
+import { doiUrlString } from "../doi/url.ts";
+import type { Pub } from "./types.ts";
 
 const dateFromParts = (p: [number, number, number?]) =>
   p.map((n, i) => 0 === i ? String(n) : String(n).padStart(2, "0")).join("-");
 
 export const pubFromCrossrefWork = (work: CrossrefWork) => {
   const doi = work.DOI;
-  const id = decodedDoiUrlString(doi);
+  const id = doiUrlString(doi);
   const type = work.type;
   const [title] = work?.title;
   const [container] = work?.["container-title"];
