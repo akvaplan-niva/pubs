@@ -7,8 +7,22 @@ export async function* keys<T>(selector: Deno.KvListSelector) {
   }
 }
 
+export const clear = async (selector: Deno.KvListSelector) => {
+  let affected = 0;
+  //const atomic = kv.atomic();
+  for await (const { key } of kv.list(selector)) {
+    await kv.delete(key);
+    ++affected;
+  }
+
+  //const res = await atomic.commit();
+  //console.warn({ selector, affected, res });
+  //return res;
+};
+
 export const deleteMany = async (keys: Iterable<Deno.KvKey>) => {
   let affected = 0;
+
   const atomic = kv.atomic();
   for (const key of keys) {
     atomic.delete(key);

@@ -3,7 +3,6 @@ import { doiname, isDoiUrl } from "../doi/url.ts";
 //import { searchParams } from "./defaults.ts";
 import { retrieve, searchUrl } from "./search.ts";
 import type { NvaPublication } from "./types.ts";
-import { pubFromNva } from "../pub/pub_from_nva.ts";
 
 // FIXME akvaplanPubsInNva: Allow searching only for records modified since…
 // FIXME akvaplanPubsInNva: Search also by names, since authors may have work only connected to other institutions while working at Akvaplan,
@@ -15,6 +14,7 @@ export async function* akvaplanPubsInNva(
   const params = new URLSearchParams(searchParams);
   params.set("institution", "AKVAPLAN");
   const url = searchUrl(params);
+
   for await (const hit of retrieve(url)) {
     yield hit;
   }
@@ -39,15 +39,10 @@ export async function* akvaplanNonDoiPubsInNva(
   for await (const hit of akvaplanPubsInNva(searchParams)) {
     const { reference } = hit.entityDescription;
     const { doi } = reference;
-    if (!doi) {
+    if (
+      !doi
+    ) {
       yield hit;
     }
-  }
-}
-
-if (import.meta.main) {
-  for await (const nva of akvaplanNonDoiPubsInNva()) {
-    const pub = await pubFromNva(nva);
-    console.log(JSON.stringify(pub));
   }
 }

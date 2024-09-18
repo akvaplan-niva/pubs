@@ -1,6 +1,8 @@
 #!/usr/bin/env -S deno run --env-file --allow-env
-import { base } from "./defaults.ts";
+import { getNvaConfigFromEnv } from "./config.ts";
 import { NvaPublication } from "./types.ts";
+
+const { base } = getNvaConfigFromEnv();
 export const buildApiRequest = (
   { url, token, method = "GET", accept = "application/json" }: {
     url: URL | string;
@@ -27,7 +29,7 @@ export const getPublication = async (
 ) => {
   const url = new URL(`/publication/${id}`, base);
   const req = buildApiRequest({ url, token });
-  return fetchNvaJson<NvaPublication>(req);
+  return await fetchNvaJson<NvaPublication>(req);
 };
 
 export const downloadPublicFile = async (

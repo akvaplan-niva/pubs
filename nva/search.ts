@@ -1,5 +1,4 @@
-import { base } from "./defaults.ts";
-
+import { getNvaConfigFromEnv } from "./config.ts";
 import type {
   NvaHitsGenerator,
   NvaPublication,
@@ -7,6 +6,7 @@ import type {
 } from "./types.ts";
 
 export const searchUrl = (params: Iterable<string[]> = []) => {
+  const { base } = getNvaConfigFromEnv();
   const url = new URL("/search/resources", base);
   for (const [k, v] of params) {
     url.searchParams.set(k, v);
@@ -38,7 +38,7 @@ export async function* retrieveInBatches(
     yield hits;
 
     if (nextResults) {
-      yield* retrieveInBatches(nextResults, retrieved);
+      yield* retrieveInBatches(new URL(nextResults), retrieved);
     } else {
       console.assert(
         retrieved === totalHits,

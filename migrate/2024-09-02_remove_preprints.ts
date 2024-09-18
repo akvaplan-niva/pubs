@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
-// https://github.com/akvaplan-niva/pubs/issues/4
-import { decodedDoiUrlString } from "../../doi/url.ts";
-import { deleteMany } from "../kv.ts";
+// Closes https://github.com/akvaplan-niva/pubs/issues/4
+import { doiUrlString } from "../doi/url.ts";
+import { deleteMany } from "../kv/kv.ts";
 
 const delDois = [
   "10.1101/150060",
@@ -31,17 +31,15 @@ const delDois = [
   "10.5194/tcd-6-4305-2012",
   "10.7287/peerj.preprints.26650",
   "10.7287/peerj.preprints.26650v1",
-  "10.1023/a:1008033201227", // https://github.com/akvaplan-niva/dois/issues/18#issuecomment-2059476662
-  "10.5194/hess-12-491-2008", // https://github.com/akvaplan-niva/dois/issues/25
 ];
 
-const migrate = async () => {
-  const pubkeys = delDois.map((doi) => ["pub", decodedDoiUrlString(doi)]);
+export const removePreprints = async () => {
+  const pubkeys = delDois.map((doi) => ["pub", doiUrlString(doi)]);
   await deleteMany(pubkeys);
   const crossrefkeys = delDois.map((doi) => ["crossref", doi]);
   await deleteMany(crossrefkeys);
 };
 
 if (import.meta.main) {
-  migrate();
+  removePreprints();
 }

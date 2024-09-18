@@ -21,14 +21,12 @@ export const isDoiUrl = (url: URL | string) => {
 /**
  *  DOI URL string (unescaped, lowercase) from naked DOI name
  */
-export const decodedDoiUrlString = (name: string) =>
-  decodeURI( // Use unescaped DOI name in URL
-    new URL(
-      name.toLowerCase(),
-      "https://doi.org",
-    ).href,
+export const doiUrlString = (name: string) =>
+  decodeURI(
+    new URL(name.toLowerCase(), "https://doi.org").href,
   );
 
+/** DOI name (string starting with "10.") from DOI URL */
 export const doiname = (url: URL | string) =>
   decodeURIComponent(new URL(url).pathname.slice(1).toLowerCase());
 

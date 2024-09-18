@@ -25,7 +25,7 @@ export const getAccessTokenObject = async () => {
     const accessTokenResponse: AccessTokenResponse = await res.json();
     const accessTokenObject = decodeAcessTokenResponse(accessTokenResponse);
 
-    await kv.set(["nva_access", url.href, id], accessTokenObject, {
+    await kv.set(["nva_access", authTokenUrl.href, id], accessTokenObject, {
       expireIn: accessTokenObject.expires_in * 1000,
     });
     return accessTokenObject;

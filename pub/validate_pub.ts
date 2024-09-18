@@ -1,10 +1,32 @@
-import { array, date, number, object, string, ValidationError } from "yup";
+import {
+  array,
+  boolean,
+  date,
+  number,
+  object,
+  string,
+  ValidationError,
+} from "yup";
 
-export const authorSchema = object({
+export const identityObject = object({
+  id: string(),
+  openalex: string().optional(),
+});
+
+const names = {
   family: string().optional(),
   given: string().optional(),
   name: string().optional(),
-  identity: object().optional(),
+};
+
+export const authorSchema = object({
+  ...names,
+  identity: object({
+    id: string(),
+    ...names,
+    prior: boolean(),
+  }).optional(),
+  position: number().optional(),
 });
 
 export const pubSchema = object({
@@ -23,6 +45,7 @@ export const pubSchema = object({
   reg: string().optional(),
   created: date().required().default(new Date()),
   modified: date().required().default(new Date()),
+  akvaplanists: object({ total: number() }).optional(),
 });
 
 export const validatePub = async (value: unknown) => {

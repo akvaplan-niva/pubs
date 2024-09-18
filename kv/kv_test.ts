@@ -6,7 +6,7 @@ Deno.test("KV", async (t) => {
   const key = ["pub", id];
   const value = { id };
 
-  await t.step(":memory:", () => {
+  await t.step("test using :memory:", () => {
     assertEquals(Deno.env.get("DENO_KV_PATH"), ":memory:");
   });
 

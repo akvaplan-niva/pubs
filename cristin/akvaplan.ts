@@ -26,6 +26,8 @@ export const akvaplanDoisInCristinSince = async (
       before ? `&published_before=${before}` : ""
     }&per_page=1000&sort=year_published+desc`,
   );
+
+  // console.warn("DEBUG Cristin API URL", url.href);
   const records = await search(url);
 
   const withDoi = records.map((r: CristinResult) => {

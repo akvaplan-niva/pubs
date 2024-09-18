@@ -16,8 +16,9 @@ export const pubFromNva = async (nva: NvaPublication) => {
     //associatedArtifacts,
   } = nva;
 
-  const id = nva.handle ? handleUrlString(nva.handle) : nva.id;
   const { mainTitle, reference } = entityDescription;
+  const { doi } = reference;
+  const id = doi ? doi : nva.handle ? handleUrlString(nva.handle) : nva.id;
 
   const title = mainTitle
     .replace(/[\r\n]/g, " ")
@@ -49,10 +50,14 @@ export const pubFromNva = async (nva: NvaPublication) => {
   return pub;
 };
 
+// FIXME => extractAuthors must check contributor role…
 const extractAuthors = (contributors: NvaContributor[]) =>
   contributors.map(({ identity: { name } }) => ({ name }));
 
-const extractAnthology = async (
+// const extractContributors = (contributors: NvaContributor[]) =>
+//   contributors.map(({ identity: { name } }) => ({ name }));
+
+const extractAnthology = (
   entityDescription: NvaEntityDescription,
 ) => entityDescription.mainTitle;
 
