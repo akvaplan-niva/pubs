@@ -1,23 +1,23 @@
-#!/usr/bin/env -S deno run --unstable-kv --env-file --allow-env="NVA_TOKEN_URL,NVA_CLIENT_ID,NVA_CLIENT_SECRET" --allow-net
+#!/usr/bin/env -S deno run --env-file --allow-env --allow-net
 import { buildAccessTokenRequest } from "./auth_request.ts";
 import { decodeAcessTokenResponse } from "./auth_access_token.ts";
-import { getNvaOAuthEnv } from "./config.ts";
+import { getNvaConfigFromEnv } from "./config.ts";
 import { kv } from "../kv/kv.ts";
 
 import type { AccessTokenObject, AccessTokenResponse } from "./types.ts";
 
 export const getAccessTokenObject = async () => {
-  const { id, secret, url } = getNvaOAuthEnv();
+  const { id, secret, authTokenUrl } = getNvaConfigFromEnv();
 
   const tokenInKv =
-    (await kv.get<AccessTokenObject>(["nva_access", url.href, id]))
+    (await kv.get<AccessTokenObject>(["nva_access", authTokenUrl.href, id]))
       ?.value;
 
   if (tokenInKv && tokenInKv.expires > new Date()) {
     return tokenInKv;
   }
 
-  const req = buildAccessTokenRequest({ id, secret, url });
+  const req = buildAccessTokenRequest({ id, secret, url: authTokenUrl });
   const res = await fetch(req);
   if (!res.ok) {
     console.error(res);
@@ -25,7 +25,7 @@ export const getAccessTokenObject = async () => {
     const accessTokenResponse: AccessTokenResponse = await res.json();
     const accessTokenObject = decodeAcessTokenResponse(accessTokenResponse);
 
-    await kv.set(["nva_access", url.href, id], accessTokenObject, {
+    await kv.set(["nva_access", authTokenUrl.href, id], accessTokenObject, {
       expireIn: accessTokenObject.expires_in * 1000,
     });
     return accessTokenObject;

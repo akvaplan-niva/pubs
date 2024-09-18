@@ -1,37 +1,47 @@
-#!/usr/bin/env -S deno run --unstable-kv --env-file --allow-env --allow-net=api.test.nva.aws.unit.no
+#!/usr/bin/env -S deno run --env-file --allow-env --allow-net=api.test.nva.aws.unit.no
 import { doiname, isDoiUrl } from "../doi/url.ts";
-import { searchParams } from "./defaults.ts";
+//import { searchParams } from "./defaults.ts";
 import { retrieve, searchUrl } from "./search.ts";
-import type { NvaHit } from "./types.ts";
+import type { NvaPublication } from "./types.ts";
 
-// FIXME Allow searching only for records modified since…
+// FIXME akvaplanPubsInNva: Allow searching only for records modified since…
+// FIXME akvaplanPubsInNva: Search also by names, since authors may have work only connected to other institutions while working at Akvaplan,
+// or works that explicitly linked with Akvaplan-niva in the original, but are lacking affiliation in the NVA metadata
+
 export async function* akvaplanPubsInNva(
-  searchParams: Iterable<[string, string]> | Record<string, string>,
+  searchParams: Iterable<[string, string]> | Record<string, string> = [],
 ) {
   const params = new URLSearchParams(searchParams);
   params.set("institution", "AKVAPLAN");
   const url = searchUrl(params);
+
   for await (const hit of retrieve(url)) {
     yield hit;
   }
 }
 
-export async function* akvaplanDoiPubsInNva() {
-  for await (const hit of akvaplanPubsInNva()) {
+export async function* akvaplanDoiPubsInNva(
+  searchParams: Iterable<[string, string]> | Record<string, string> = [],
+) {
+  for await (const hit of akvaplanPubsInNva(searchParams)) {
     const { reference } = hit.entityDescription;
     const { doi } = reference;
     if (doi && isDoiUrl(doi)) {
       const name = doiname(doi);
-      yield [name, hit] as [string, NvaHit];
+      yield [name, hit] as [string, NvaPublication];
     }
   }
 }
 
-export async function* akvaplanNonDoiPubsInNva() {
-  for await (const hit of akvaplanPubsInNva()) {
+export async function* akvaplanNonDoiPubsInNva(
+  searchParams: Iterable<[string, string]> | Record<string, string> = [],
+) {
+  for await (const hit of akvaplanPubsInNva(searchParams)) {
     const { reference } = hit.entityDescription;
     const { doi } = reference;
-    if (!doi) {
+    if (
+      !doi
+    ) {
       yield hit;
     }
   }

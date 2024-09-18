@@ -1,5 +1,6 @@
-export const base = new URL(
-  Deno.env.get("NVA_BASE") ?? "https://api.nva.unit.no",
+export const base = new URL("https://api.nva.unit.no");
+export const authBase = new URL(
+  "https://nva-prod.auth.eu-west-1.amazoncognito.com",
 );
 export const searchParams = [
   ["aggregation", "none"],

@@ -1,32 +1,32 @@
-// For official types, see:
+// Convenience types, for official types, see:
 // https://github.com/BIBSYSDEV/NVA-Frontend/tree/develop/src/types
 
-export interface EntityDescription {
+export interface NvaEntityDescription {
   type: "EntityDescription";
   abstract: string;
   alternativeAbstracts: unknown;
-  contributors: Contributor[];
-  reference: Reference;
+  contributors: NvaContributor[];
+  reference: NvaReference;
   language: string;
   mainTitle: string;
   publicationDate: { type: "PublicationDate"; year: string };
 }
 
 export interface NvaHitsGenerator {
-  [Symbol.iterator](): Iterator<NvaHit>;
+  [Symbol.iterator](): Iterator<NvaPublication>;
 }
 
-export interface NvaHit {
-  type: string;
-  publicationContextUris: unknown;
+export interface NvaPublication {
+  type: "Publication";
+  publicationContextUris: URL[];
   "@context": URL;
-  id: unknown;
-  additionalIdentifiers: unknown;
-  associatedArtifacts: (PublishedFile | PublishedFile)[];
+  id: string;
+  additionalIdentifiers: unknown[];
+  associatedArtifacts: NvaFile[];
   contributorOrganizations: URL[];
   createdDate: Date;
   curatingInstitutions: URL[];
-  entityDescription: EntityDescription;
+  entityDescription: NvaEntityDescription;
   fundings: unknown;
   handle: string;
   identifier: string;
@@ -43,7 +43,7 @@ export interface NvaHit {
 export interface NvaSearchResults {
   id: string;
   totalHits: number;
-  hits: NvaHit[];
+  hits: NvaPublication[];
   nextResults: URL;
   nextSearchAfterResults: URL;
   "@context": URL;
@@ -74,8 +74,8 @@ export interface AccessTokenObject extends AccessTokenResponse {
   expires: Temporal.Instant | Date | string;
 }
 
-interface PublishedFile {
-  type: string;
+export interface NvaFile {
+  type: "PublishedFile" | "UnpublishableFile";
   administrativeAgreement: boolean;
   identifier: string;
   license: License;
@@ -88,7 +88,6 @@ interface PublishedFile {
   uploadDetails: UploadDetails;
   visibleForNonOwner: boolean;
 }
-
 interface License {
   type: string;
   value: string;
@@ -107,7 +106,7 @@ interface UploadDetails {
   uploadedDate: Date;
 }
 
-interface Contributor {
+export interface NvaContributor {
   type: "Contributor";
   affiliations: unknown[];
   correspondingAuthor: boolean;
@@ -139,21 +138,35 @@ interface Organization {
   hasPart: Organization[];
 }
 
-interface PublicationContext {
+export interface NvaPublicationContext {
   id: string;
-  type: string;
+  type: string | string[];
   identifier: string;
   name: string;
   onlineIssn: string;
   sameAs: string;
   scientificValue: string;
   year: string;
+  series: NvaSeries;
+
+  entityDescription: NvaEntityDescription;
 }
 
-interface Reference {
+export interface NvaSeries {
+  id: string;
+  type: string;
+  identifier: string;
+  name: string;
+  printIssn: string;
+  sameAs: string;
+  scientificValue: string;
+  year: string;
+}
+
+export interface NvaReference {
   type: string;
   doi: string;
-  publicationContext: PublicationContext;
+  publicationContext: NvaPublicationContext;
 }
 
 interface Role {

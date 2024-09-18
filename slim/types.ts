@@ -1,6 +1,6 @@
 export interface SlimPublication {
-  published: Date;
-  printed: Date;
+  published: string; // may be just "yyyy", or "yyyy-mm", or isodate, or date-time string
+  printed: string;
   type: string;
   container: string;
   title: string;

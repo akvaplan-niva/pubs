@@ -1,37 +1,52 @@
 import {
   array,
+  boolean,
   date,
-  type InferType,
   number,
   object,
   string,
   ValidationError,
 } from "yup";
 
-const authorSchema = object({
-  family: string().default(""),
-  given: string().default(""),
-  name: string().optional(),
+export const identityObject = object({
+  id: string(),
+  openalex: string().optional(),
 });
 
-const pubSchema = object({
+const names = {
+  family: string().optional(),
+  given: string().optional(),
+  name: string().optional(),
+};
+
+export const authorSchema = object({
+  ...names,
+  identity: object({
+    id: string(),
+    ...names,
+    prior: boolean(),
+  }).optional(),
+  position: number().optional(),
+});
+
+export const pubSchema = object({
   id: string().required(),
-  published: string().required(),
-  printed: date().optional(),
+  published: string().required(), // `published` is type string (and not date) since it may be "yyyy" or "yyyy-mm" in addition to (iso)date and date-time
+  printed: string().optional(),
   type: string().required(),
-  container: string().default(""),
+  container: string().optional(),
   title: string().required(),
   authors: array().required().of(authorSchema),
   doi: string().optional(),
+  nva: string().optional(),
   license: string().optional(),
   cites: number().optional(),
   pdf: string().optional(),
   reg: string().optional(),
-  created: date().required(),
+  created: date().required().default(new Date()),
   modified: date().required().default(new Date()),
+  akvaplanists: object({ total: number() }).optional(),
 });
-
-export interface Pub extends InferType<typeof pubSchema> {}
 
 export const validatePub = async (value: unknown) => {
   try {

@@ -23,8 +23,8 @@ const expected = {
   type: "journal-article",
   reg: "Crossref",
   license: "cc-by",
-  created: new Date(),
-  modified: new Date(),
+  created: new Date("2024-07-31T02:38:53Z"),
+  modified: new Date("2024-08-01T00:34:50Z"),
 };
 
 Deno.test("pubFromCrossrefWork", () =>

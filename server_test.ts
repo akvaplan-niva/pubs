@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-//import { kv } from "./kv/kv.ts";
+import { kv } from "./kv/kv.ts";
 import server from "./server.ts";
 
 const serverFetch = async (path: string) =>
@@ -9,10 +9,10 @@ const serverFetch = async (path: string) =>
 //   await t.step("GET /pub/:doi", async () => {
 //     const res = await serverFetch("/pub/10.1002/2013gl058304");
 //     assertEquals(await res.text(), "");
-//     // assertEquals(
-//     //   res.headers.get("content-type")?.startsWith("application/json"),
-//     //   true,
-//     // );
+//     assertEquals(
+//       res.headers.get("content-type")?.startsWith("application/json"),
+//       true,
+//     );
 //   });
 // });
 

@@ -1,38 +1,41 @@
 import { keys, kv } from "./kv.ts";
 import {
-  crossrefkey,
+  getCrossrefWork,
   getOrLookupCrossrefWork,
+  insertCrossrefWork,
   setCrossrefWork,
 } from "./crossref.ts";
-import type { DoiRegObject, Pub } from "../pub/pub_types.ts";
+import type { DoiRegObject, Pub, PubAuthor } from "../pub/types.ts";
 
 import { pubFromCrossrefWork } from "../pub/pub_from_crossref.ts";
 import { validatePub } from "../pub/validate_pub.ts";
-import { doiname, isDoiUrl } from "../doi/url.ts";
+import { doiname, doiUrlString, isDoiUrl } from "../doi/url.ts";
+import { NvaPublication } from "../nva/types.ts";
+import { pubFromNva } from "../pub/pub_from_nva.ts";
 
-const pubkey = (pub: Pub | Pick<Pub, "id">) => ["pub", pub.id] as const;
+import { identify } from "../akvaplanists/spelling.ts";
+import { getCrossrefWorkFromApi } from "../crossref/work.ts";
+import { delDois } from "../migrate/2024-09-10_remove.ts";
 
-const countkey = ["count", "pub"] as const;
+const pubkey = (pub: Pick<Pub, "id">) => ["pub", pub.id] as const;
 
-export const dois = async () =>
+export const idset = async () =>
   new Set(
     (await Array.fromAsync(keys({ prefix: ["pub"] })))
-      .map(([, id]) => id as string).filter((id) => isDoiUrl(id)),
+      .map(([, id]) => id as string),
   );
 
-export const doinames = async () =>
-  new Set([...(await dois())].map((url) => doiname(url)));
+export const doiset = async () =>
+  new Set([...(await idset())].filter((id) => isDoiUrl(id)));
 
-/** Delete pub in KV */
+export const doinameset = async () =>
+  new Set([...(await doiset())].map((url) => doiname(url)));
+
 export const deletePub = async (id: string) => await kv.delete(pubkey({ id }));
 
-/** Get pub from KV */
 export const getPub = async (id: string) =>
   (await kv.get<Pub>(pubkey({ id })))?.value;
 
-/**
- * Insert a new DOI publication
- */
 export const insertDoiPub = (
   { doi, reg }: DoiRegObject,
 ) => {
@@ -46,50 +49,122 @@ export const insertDoiPub = (
   }
 };
 
-/** Insert pub in KV */
-export const insertPub = async (pub: Pub) => {
-  const cause = await validatePub(pub);
-  if (cause) {
-    throw RangeError("Publication failed validation", { cause });
-  }
-  const atomic = kv.atomic()
-    .check({ key: pubkey(pub), versionstamp: null })
-    .set(pubkey(pub), pub)
-    .mutate({
-      type: "sum",
-      key: countkey,
-      value: new Deno.KvU64(1n),
-    });
+export const insertNvaPub = async (nvapub: NvaPublication) => {
+  const pub = await pubFromNva(nvapub);
+  await insertPub(pub);
+};
 
-  switch (pub.reg) {
-    case "Crossref": {
-      const key = crossrefkey(pub.doi as string);
-      const { versionstamp } = await kv.get(key);
-      return await atomic.check({ key, versionstamp }).commit();
+export const findAuthorIdentities = async (pub: Pub) => {
+  const authors = structuredClone(pub?.authors ?? []);
+  let pos = 0;
+  for await (const author of authors) {
+    const identity = await identify(author);
+    if (identity) {
+      author.identity = identity;
     }
-    default:
-      return await atomic.commit();
+    author.position = pos > 0 && pos + 1 === authors.length ? -1 : pos;
+    pos++;
+  }
+  return authors;
+};
+
+const setAtomicBys = (pub: Pub, atomic: Deno.AtomicOperation) => {
+  for (const author of pub.authors) {
+    const { identity } = author;
+    if (identity && identity.id) {
+      const key = ["by", identity.id, pub.id];
+      atomic.set(key, pub);
+    }
+  }
+  return atomic;
+};
+
+export const insertPubs = async (pubs: Pub[]) => {
+  for await (const pub of pubs) {
+    await insertPub(pub);
   }
 };
 
-/** Store publicaton in KV */
-export const setPub = async (pub: Pub) => await kv.set(pubkey(pub), pub);
+const augmentPub = async (pub: Pub) => {
+  const aug = structuredClone(pub);
+  aug.authors = await findAuthorIdentities(aug);
+  aug.akvaplanists = countAkvaplanists(aug.authors);
 
-export const setPubCount = async (n: number) =>
-  await kv.set(["count", "pub"], new Deno.KvU64(BigInt(n)));
+  if (pub?.doi && pub?.reg === "Crossref") {
+    const work = await getCrossrefWork(pub.doi);
+    if (!work) {
+      const work2 = await getCrossrefWorkFromApi(pub.doi);
+      if (work2) {
+        await insertCrossrefWork(work2);
+      }
+    }
+  }
 
-/** Lookup Crossref DOI and insert both work and pub  */
+  if (0 === aug.akvaplanists.total && aug.authors?.length > 0) {
+    console.warn(
+      "Found 0 Akvaplanists in",
+      pub.id,
+      "authors:",
+      JSON.stringify(pub.authors),
+    );
+  }
+  return aug;
+};
+
+const prepareAtomicSetPub = async (
+  pub: Pub,
+) => {
+  const rejected = isRejected(pub.id);
+  if (rejected) {
+    console.warn("rejected", pub.id);
+    return;
+  }
+  const cause = await validatePub(pub);
+  if (cause) {
+    console.error({ cause, pub });
+    throw RangeError(`Invalid publication: ${pub.id}`, { cause });
+  }
+
+  const key = pubkey(pub);
+  const value = await augmentPub(pub);
+  const atomic = kv.atomic().set(key, value);
+
+  return { key, value, atomic };
+};
+
+export const insertPub = async (
+  pub: Pub,
+) => {
+  const res = await prepareAtomicSetPub(pub);
+  if (res) {
+    const { key, value, atomic } = res;
+    atomic.check({ key, versionstamp: null });
+    const final = setAtomicBys(value, atomic);
+    return await final.commit();
+  }
+};
+
+export const updatePub = async (
+  pub: Pub,
+) => {
+  const res = await prepareAtomicSetPub(pub);
+  if (res) {
+    const { value, atomic } = res;
+    const final = setAtomicBys(value, atomic);
+    return await final.commit();
+  }
+};
+
+// export const setPubCount = async (n: number) =>
+//   await kv.set(["count", "pub"], new Deno.KvU64(BigInt(n)));
+
+/** Insert pub from DOI name (by retrieving Crossref work metadata)  */
 const insertPubFromCrossrefDoi = async (doi: string) => {
   const work = await getOrLookupCrossrefWork(doi);
   if (work) {
-    await setCrossrefWork(work); // persist crossref work
+    await setCrossrefWork(work); // save crossref work
     const pub = pubFromCrossrefWork(work);
-    const pubkv = await getPub(pub.id);
-    if (!pubkv) {
-      const { id, published, title, license } = pub;
-      console.warn("INFO", "insert", { id, published, license, title });
-      await insertPub(pub);
-    }
+    await insertPub(pub);
   }
 };
 
@@ -98,4 +173,53 @@ const insertPubFromDatacite = async (_doi: string) => {
   //   "WARN",
   //   `Cannot insert "${doi}": DataCite DOIs are not yet supported`,
   // );
+};
+
+export const findChangedTitles = async () => {
+  const existing = await Array.fromAsync(
+    kv.list<Pub>({ prefix: ["pub"] }),
+  );
+  if (existing) {
+    const titles = new Map(
+      existing.map(({ value }) => [value.doi as string, value.title]),
+    );
+    const diff = new Set();
+    for await (const [doi, title] of titles) {
+      const work = await getOrLookupCrossrefWork(doi);
+      if (work) {
+        if (title !== work.title.at(0)) {
+          diff.add(doi);
+          console.warn(diff);
+        }
+      }
+    }
+  }
+};
+
+const isRejected = (id: string) => {
+  const ignore = new Set([
+    "https://doi.org/10.1098/rspb.2020.1001rspb20201001",
+    "https://doi.org/10.5324/fn.v31i0.1506",
+    "https://doi.org/10.1016/j.aquaculture.2006.06",
+    "https://doi.org/10.1016/j.pocean.2006.10.0",
+    "https://doi.org/10.4194/1303-2712-v16_2_06", //invalid
+    ...delDois.map(doiUrlString),
+  ]);
+  return ignore.has(id);
+};
+
+const countAkvaplanists = (authors: PubAuthor[]) => {
+  const akvaplanists = { total: 0, current: 0, prior: 0, when: new Date() };
+  for (const author of authors) {
+    const { identity } = author;
+    if (identity) {
+      akvaplanists.total++;
+      if (identity.prior === true) {
+        akvaplanists.prior++;
+      } else {
+        akvaplanists.current++;
+      }
+    }
+  }
+  return akvaplanists;
 };
