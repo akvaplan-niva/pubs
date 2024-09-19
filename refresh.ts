@@ -39,7 +39,7 @@ export const refresNvaPubs = async () => {
   for await (const [doi, nvapub] of akvaplanDoiPubsInNva()) {
     try {
       if (!ids.has(nvapub.id)) {
-        console.warn("DEBUG NVA DOI", doi);
+        //console.warn("DEBUG NVA DOI", doi);
         insertDoiPub({ doi, reg: "Crossref" });
       }
     } catch (e) {
@@ -61,7 +61,7 @@ export const refreshDoiPubs = async () => {
       console.warn("WARN", { doi, status });
     }
     if (agency) {
-      console.warn("DEBUG", "DOI from Cristin/manual", agency, "DOI:", doi);
+      //console.warn("DEBUG", "DOI from Cristin/manual", agency, "DOI:", doi);
       await insertDoiPub({ doi, reg: agency });
     } else {
       console.error({ doi });
@@ -69,9 +69,9 @@ export const refreshDoiPubs = async () => {
   }
 };
 
-export const refresh = () => {
-  refreshDoiPubs();
-  refresNvaPubs();
+export const refresh = async () => {
+  await refreshDoiPubs();
+  await refresNvaPubs();
 };
 
 if (import.meta.main) {

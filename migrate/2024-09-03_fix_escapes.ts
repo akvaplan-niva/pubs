@@ -36,6 +36,10 @@ const titles = new Map([
     "10.5194/egusphere-egu22-11984",
     "Assessing ecosystem effects of changes to man-made infrastructure in the North Sea",
   ],
+  [
+    "10.4194/1303-2712-v16_2_06",
+    "Effect of Fish Protein Replacement in Diets for Juvenile Turbot Scophthalmus Maximus",
+  ],
 ]);
 
 const containers = new Map([

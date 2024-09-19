@@ -3,9 +3,8 @@ import { doinameset, insertPubs } from "../kv/pub.ts";
 
 import { ndjsonStream, saveResponse } from "../io.ts";
 import { pubFromSlim } from "../pub/pub_from_slim.ts";
-
 import type { SlimPublication } from "../slim/types.ts";
-import { clear } from "../kv/kv.ts";
+
 import { chunkArray } from "../util/chunk.ts";
 
 const akvaplanDoisUrl = new URL(
@@ -16,7 +15,6 @@ const akvaplanDoisUrl = new URL(
  * Bootstraps KV database from "slim" metadata from prior Akvaplan-niva DOI service
  */
 export const bootstrap = async () => {
-  await clear({ prefix: [] });
   const src = akvaplanDoisUrl;
   const dest = new URL("../data/slim.ndjson", import.meta.url);
 

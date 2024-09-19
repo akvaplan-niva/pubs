@@ -9,13 +9,12 @@ import type { DoiRegObject, Pub, PubAuthor } from "../pub/types.ts";
 
 import { pubFromCrossrefWork } from "../pub/pub_from_crossref.ts";
 import { validatePub } from "../pub/validate_pub.ts";
-import { doiname, doiUrlString, isDoiUrl } from "../doi/url.ts";
+import { doiname, isDoiUrl } from "../doi/url.ts";
 import { NvaPublication } from "../nva/types.ts";
 import { pubFromNva } from "../pub/pub_from_nva.ts";
 
 import { identify } from "../akvaplanists/spelling.ts";
 import { getCrossrefWorkFromApi } from "../crossref/work.ts";
-import { delDois } from "../migrate/2024-09-10_remove.ts";
 
 const pubkey = (pub: Pick<Pub, "id">) => ["pub", pub.id] as const;
 
@@ -114,10 +113,13 @@ const augmentPub = async (pub: Pub) => {
 const prepareAtomicSetPub = async (
   pub: Pub,
 ) => {
-  const rejected = isRejected(pub.id);
+  const rejected = await isRejected(pub.id);
   if (rejected) {
-    console.warn("rejected", pub.id);
     return;
+  }
+  if (pub.title === "") {
+    //Rare, but Crossref title may sometimes be empty
+    pub.title = pub.id;
   }
   const cause = await validatePub(pub);
   if (cause) {
@@ -196,16 +198,19 @@ export const findChangedTitles = async () => {
   }
 };
 
-const isRejected = (id: string) => {
+const isRejected = async (id: string) => {
   const ignore = new Set([
     "https://doi.org/10.1098/rspb.2020.1001rspb20201001",
     "https://doi.org/10.5324/fn.v31i0.1506",
     "https://doi.org/10.1016/j.aquaculture.2006.06",
     "https://doi.org/10.1016/j.pocean.2006.10.0",
-    "https://doi.org/10.4194/1303-2712-v16_2_06", //invalid
-    ...delDois.map(doiUrlString),
+    //"https://doi.org/10.4194/1303-2712-v16_2_06", //invalid
   ]);
-  return ignore.has(id);
+  if (ignore.has(id)) {
+    return true;
+  }
+  const { versionstamp } = await kv.get(["reject", id]);
+  return versionstamp ? true : false;
 };
 
 const countAkvaplanists = (authors: PubAuthor[]) => {
