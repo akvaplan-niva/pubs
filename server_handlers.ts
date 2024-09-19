@@ -95,10 +95,9 @@ export const readableStreamOfKvListValues = <T>(
   new ReadableStream({
     async start(controller) {
       let sequence = 0;
-      for await (const { value } of list) {
+      for await (const { key, value, versionstamp } of list) {
         controller.enqueue(
-          JSON.stringify(value) + "\n",
-          //JSON.stringify({ key, value, versionstamp, sequence }) + "\r\n",
+          JSON.stringify({ key, value, versionstamp, sequence }) + "\r\n",
         );
         sequence++;
       }
