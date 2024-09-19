@@ -1,5 +1,4 @@
 import { assertEquals } from "@std/assert";
-import { kv } from "./kv/kv.ts";
 import server from "./server.ts";
 
 const serverFetch = async (path: string) =>

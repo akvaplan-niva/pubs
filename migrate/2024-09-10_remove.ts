@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
 import { doiUrlString } from "../doi/url.ts";
-import { deleteMany } from "../kv/kv.ts";
+import { deleteMany, kv } from "../kv/kv.ts";
 
 // Many of these are mis-attributed Akvaplan-niva by OpenAlex, when containing only NIVAists, like: https://doi.org/10.1016/j.ecoenv.2021.112585
 export const delDois = [
@@ -67,10 +67,13 @@ export const delDois = [
   "10.1016/j.cbpa.2008.07.019", // NO
 ];
 
-const delHandles = ["11250/2739211"];
+const delHandles: string[] = [
+  //"11250/2739211", // Only NIVA?
+];
 
-const delIds = [
-  "https://api.test.nva.aws.unit.no/publication/01907a90bca9-9b582398-b110-4af9-8200-11b20afec801",
+const delIds: string[] = [
+  "https://api.test.nva.aws.unit.no/publication/0191fb0f7c77-cf85b072-7a07-4953-982f-4f0ea73d8cb8",
+  // 2 Akvaplan-in in Cristin? "https://api.test.nva.aws.unit.no/publication/01907a90bca9-9b582398-b110-4af9-8200-11b20afec801",
 ];
 
 export const removeUnwarranted = async () => {
@@ -88,6 +91,12 @@ export const removeUnwarranted = async () => {
     id,
   ) => ["pub", id]);
   await deleteMany(idKeys);
+
+  const idkeys = [...pubkeys, ...handleKeys, ...idKeys];
+  for (const [, id] of idkeys) {
+    const key = ["reject", id];
+    await kv.set(key, "removeUnwarranted");
+  }
 };
 
 if (import.meta.main) {

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
 // Closes https://github.com/akvaplan-niva/pubs/issues/4
 import { doiUrlString } from "../doi/url.ts";
-import { deleteMany } from "../kv/kv.ts";
+import { deleteMany, kv } from "../kv/kv.ts";
 
 const delDois = [
   "10.1101/150060",
@@ -38,6 +38,12 @@ export const removePreprints = async () => {
   await deleteMany(pubkeys);
   const crossrefkeys = delDois.map((doi) => ["crossref", doi]);
   await deleteMany(crossrefkeys);
+
+  for (const [, id] of pubkeys) {
+    const key = ["reject", id];
+    await kv.set(key, "removePreprints");
+  }
+  removePreprints;
 };
 
 if (import.meta.main) {
