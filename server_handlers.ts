@@ -2,7 +2,7 @@ import { kv } from "./kv/kv.ts";
 import { getCrossrefWorkFromApi } from "./crossref/work.ts";
 import { doiUrlString } from "./doi/url.ts";
 import { getOrLookupCrossrefWork } from "./kv/crossref.ts";
-import { getPub } from "./kv/pub.ts";
+import { getPub } from "./pub/pub.ts";
 import { getNvaConfigFromEnv } from "./nva/config.ts";
 
 export const crossrefWork = async (
@@ -39,6 +39,11 @@ export const doiPub = async (
   return id ? await getAndSendPub(id, result) : send404();
 };
 
+export const getKv = async (key: Deno.KvKey) => {
+  const entry = await kv.get(key);
+  return entry.versionstamp ? await Response.json(entry) : send404();
+};
+
 const getAndSendPub = async (
   id: string,
   result?: URLPatternResult | null,
@@ -67,6 +72,7 @@ export const nvaPub = async (
 ) => {
   const _id = pathParam(result, "id");
   const id = _id ? getNvaId(_id) : null;
+  console.warn("nvaPub", id);
   return id ? await getAndSendPub(id, result) : send404();
 };
 
@@ -74,6 +80,16 @@ export const pathParam = (
   result: URLPatternResult | null | undefined,
   key: string,
 ) => result ? result.pathname.groups?.[key] : null;
+
+export const publicationMetadataFromNva = async (
+  _request: Request,
+  _info?: Deno.ServeHandlerInfo,
+  result?: URLPatternResult | null,
+) => {
+  const id = pathParam(result, "id");
+  const nva = await kv.get(["nva", id as string]);
+  return nva && nva.versionstamp ? Response.json(nva.value) : send404();
+};
 
 export const searchParam = (
   result: URLPatternResult | null | undefined,
@@ -118,9 +134,12 @@ export const streamKvListValues = <T>(
 };
 
 const getNvaId = (cand: string) => {
+  console.warn(cand);
+  const prod = "https://api.nva.unit.no/publication/";
+  const test = "https://api.test.nva.aws.unit.no/publication/";
   if (
-    cand.startsWith("https://api.nva.unit.no/publication/") ||
-    cand.startsWith("https://api.test.nva.aws.unit.no/publication/")
+    cand.startsWith(prod) ||
+    cand.startsWith(test)
   ) {
     return cand;
   }
