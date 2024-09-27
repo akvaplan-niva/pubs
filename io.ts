@@ -6,14 +6,17 @@ export const saveResponse = async (r: Response, path: string | URL) => {
   }
 };
 
-export const ndjsonStream = <T>(stream: ReadableStream) =>
+export const ndjsonStream = <In>(
+  stream: ReadableStream,
+) =>
   stream.pipeThrough(new TextDecoderStream())
     .pipeThrough(new TextLineStream())
-    .pipeThrough<T>(
+    .pipeThrough<In>(
       toTransformStream(async function* (src: AsyncIterable<string>) {
         for await (const chunk of src) {
           if (chunk.trim().length > 0) {
-            yield JSON.parse(chunk) as T;
+            const parsed: In = JSON.parse(chunk);
+            yield parsed;
           }
         }
       }),

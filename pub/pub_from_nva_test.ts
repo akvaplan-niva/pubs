@@ -15,8 +15,7 @@ Deno.test("NVA", async (t) => {
 
     const expect: Pub = {
       id: "https://hdl.handle.net/11250/3034605",
-      nva:
-        "https://api.test.nva.aws.unit.no/publication/01907a96b6e6-832117b6-3f8a-4a5a-9e0c-846a7fce9285",
+      //nva: "01907a96b6e6-832117b6-3f8a-4a5a-9e0c-846a7fce9285",
       title:
         "Episoder med skadelige alger og maneter i oppdrett- hva kan vi lære av erfaringer fra merdkanten",
       type: "report",
@@ -38,3 +37,7 @@ Deno.test("NVA", async (t) => {
   //   assertEquals(await pubFromNva({}), {});
   // });
 });
+
+
+// why not URL ?
+// https://api.test.nva.aws.unit.no/publication/01907a6c3043-a175e561-d9f9-4066-979d-ec63dc769a43

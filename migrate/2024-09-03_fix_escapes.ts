@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
 
 import { doiUrlString } from "../doi/url.ts";
-import { getPub, updatePub } from "../kv/pub.ts";
+import { getPub, updatePub } from "../pub/pub.ts";
 
 const titles = new Map([
   [

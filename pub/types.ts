@@ -1,5 +1,5 @@
 import { InferType } from "yup";
-import { authorSchema, pubSchema } from "./validate_pub.ts";
+import { authorOrContributorSchema, pubSchema } from "./validate_pub.ts";
 
 export interface DoiRegObject {
   doi: string;
@@ -7,7 +7,8 @@ export interface DoiRegObject {
 }
 export interface Pub extends InferType<typeof pubSchema> {}
 
-export interface PubAuthor extends InferType<typeof authorSchema> {}
+export interface PubContributor
+  extends InferType<typeof authorOrContributorSchema> {}
 
 // export interface Pub {
 //   id: string; // URI / universally unique

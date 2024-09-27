@@ -19,7 +19,7 @@ const names = {
   name: string().optional(),
 };
 
-export const authorSchema = object({
+export const authorOrContributorSchema = object({
   ...names,
   identity: object({
     id: string(),
@@ -29,14 +29,23 @@ export const authorSchema = object({
   position: number().optional(),
 });
 
+export const AkvaplanistCount = object({
+  total: number(),
+  current: number(),
+  prior: number(),
+  when: date(),
+});
+
 export const pubSchema = object({
   id: string().required(),
+  url: string().optional(),
   published: string().required(), // `published` is type string (and not date) since it may be "yyyy" or "yyyy-mm" in addition to (iso)date and date-time
   printed: string().optional(),
   type: string().required(),
   container: string().optional(),
   title: string().required(),
-  authors: array().required().of(authorSchema),
+  authors: array().required().of(authorOrContributorSchema),
+  contributors: array().optional().of(authorOrContributorSchema),
   doi: string().optional(),
   nva: string().optional(),
   license: string().optional(),
@@ -45,7 +54,7 @@ export const pubSchema = object({
   reg: string().optional(),
   created: date().required().default(new Date()),
   modified: date().required().default(new Date()),
-  akvaplanists: object({ total: number() }).optional(),
+  akvaplanists: AkvaplanistCount.optional(),
 });
 
 export const validatePub = async (value: unknown) => {

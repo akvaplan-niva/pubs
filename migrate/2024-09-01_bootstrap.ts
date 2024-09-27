@@ -1,5 +1,5 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-read=./data --allow-net --allow-write=./data
-import { doinameset, insertPubs } from "../kv/pub.ts";
+import { insertPubs } from "../pub/pub.ts";
 
 import { ndjsonStream, saveResponse } from "../io.ts";
 import { pubFromSlim } from "../pub/pub_from_slim.ts";
@@ -26,11 +26,10 @@ export const bootstrap = async () => {
   }
   const r = await fetch(dest);
   if (r.ok && r.body) {
-    const names = await doinameset();
     const arr = await Array.fromAsync(ndjsonStream<SlimPublication>(r.body));
 
     for await (const chunk of chunkArray(arr, 50)) {
-      const pubs = chunk.filter((slim) => !names.has(slim.doi)).map(
+      const pubs = chunk.map(
         pubFromSlim,
       );
       await insertPubs(pubs);

@@ -33,6 +33,9 @@ const initIdsAndSpellingsMap = async () => {
     };
     spelling.fn.add(a.family!);
     spelling.gn.add(a.given!);
+    // hack to fix mixup of family <-> given
+    spelling.gn.add(a.family!);
+    spelling.fn.add(a.given!);
 
     if (a.spelling) {
       if (a.spelling.gn) {
@@ -64,8 +67,8 @@ const detectFamilyGiven = (
 
 export const findId = async (
   { family, given, name }: {
-    family?: string | undefined;
-    given?: string | undefined;
+    family?: string;
+    given?: string;
     name?: string;
   },
   spellings?: Map<string, AkvaplanistSpelling>,
@@ -76,6 +79,7 @@ export const findId = async (
   if (family && given) {
     return detectFamilyGiven({ family, given }, spellings);
   }
+
   for (const [id, { fn, gn }] of spellings) {
     const fam = [...fn].find((f) => name?.endsWith(f));
     if (fam) {
@@ -88,8 +92,8 @@ export const findId = async (
 };
 
 export const identify = async (params: {
-  family?: string | undefined;
-  given?: string | undefined;
+  family?: string;
+  given?: string;
   name?: string;
 }) => {
   const id = await findId(params);

@@ -7,26 +7,42 @@ export async function* keys<T>(selector: Deno.KvListSelector) {
   }
 }
 
-export const clear = async (selector: Deno.KvListSelector) => {
-  let affected = 0;
-  //const atomic = kv.atomic();
-  for await (const { key } of kv.list(selector)) {
-    await kv.delete(key);
-    ++affected;
-  }
+export type KeyExtractor<T> = (item: T, pos: number) => Promise<Deno.KvKey>;
 
-  //const res = await atomic.commit();
-  //console.warn({ selector, affected, res });
-  //return res;
+export const setManyAtomic = async <T>(
+  values: Iterable<T>,
+  { key }: { key: KeyExtractor<T> },
+) => {
+  const atomic = kv.atomic();
+  let i = 0;
+  for await (const v of values) {
+    const k = await key(v, i++);
+    atomic.set(k, v);
+  }
+  return await atomic.commit();
 };
 
-export const deleteMany = async (keys: Iterable<Deno.KvKey>) => {
-  let affected = 0;
-
+export const deleteManyAtomic = async <T>(
+  values: Iterable<T>,
+  { key }: { key: KeyExtractor<T> },
+) => {
   const atomic = kv.atomic();
-  for (const key of keys) {
-    atomic.delete(key);
-    ++affected;
+  let i = 0;
+  for await (const v of values) {
+    const k = await key(v, i++);
+    console.warn("DELETE", k);
+    atomic.delete(k);
   }
-  console.warn(await atomic.commit(), { affected });
+  return await atomic.commit();
+};
+
+export const deleteKeysAtomic = async (
+  keys: Deno.KvKey[],
+) => {
+  const atomic = kv.atomic();
+  for await (const key of keys) {
+    console.warn("DELETE", key);
+    atomic.delete(key);
+  }
+  return await atomic.commit();
 };
