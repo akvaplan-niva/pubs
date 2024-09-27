@@ -1,4 +1,12 @@
 import { getNvaConfigFromEnv } from "./config.ts";
+
+const { base } = getNvaConfigFromEnv();
+// const isDoiName
+const isDoi = (id: URL | string) =>
+  URL.canParse(id) && "doi.org" === new URL(id).hostname;
+const isHandle = (id: string) => "hdl.handle.net" === new URL(id).hostname;
+const isDoiOrHandle = (id: string) => isDoi(id) || isHandle(id);
+
 import type {
   NvaHitsGenerator,
   NvaPublication,
@@ -24,6 +32,22 @@ const _search = async (url: URL) => {
 export const search = async (params: Iterable<string[]>) => {
   const url = searchUrl(params);
   return await _search(url);
+};
+
+export const searchNvaForId = async (id: string) => {
+  const url = new URL(`/search/resources`, base);
+  if (isHandle(id)) {
+    url.searchParams.set("handle", id);
+  } else if (isDoi(id)) {
+    url.searchParams.set("doi", id);
+  } else {
+    throw new RangeError();
+  }
+
+  const r = await fetch(url);
+  if (r?.ok) {
+    return r.json();
+  }
 };
 
 export async function* retrieveInBatches(

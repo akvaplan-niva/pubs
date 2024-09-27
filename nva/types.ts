@@ -9,7 +9,14 @@ export interface NvaEntityDescription {
   reference: NvaReference;
   language: string;
   mainTitle: string;
-  publicationDate: { type: "PublicationDate"; year: string };
+  publicationDate: PublicationDate;
+}
+
+export interface PublicationDate {
+  type: "PublicationDate";
+  year: string;
+  month?: string;
+  day?: string;
 }
 
 export interface NvaHitsGenerator {
@@ -21,8 +28,8 @@ export interface NvaPublication {
   publicationContextUris: URL[];
   "@context": URL;
   id: string;
-  additionalIdentifiers: unknown[];
-  associatedArtifacts: NvaFile[];
+  additionalIdentifiers: NvaIdentifier[];
+  associatedArtifacts: (NvaFile | NvaLink)[];
   contributorOrganizations: URL[];
   createdDate: Date;
   curatingInstitutions: URL[];
@@ -40,6 +47,13 @@ export interface NvaPublication {
   topLevelOrganizations: unknown;
   filesStatus: unknown;
 }
+
+interface NvaIdentifier {
+  type: string;
+  value: URL | string;
+  sourceName: string;
+}
+
 export interface NvaSearchResults {
   id: string;
   totalHits: number;
@@ -87,6 +101,12 @@ export interface NvaFile {
   size: number;
   uploadDetails: UploadDetails;
   visibleForNonOwner: boolean;
+  id: URL | string;
+}
+
+export interface NvaLink {
+  type: "AssociatedLink";
+  id: URL | string;
 }
 interface License {
   type: string;
@@ -147,12 +167,12 @@ export interface NvaPublicationContext {
   sameAs: string;
   scientificValue: string;
   year: string;
-  series: NvaSeries;
-
+  series: NvaChannel;
+  disseminationChannel: string;
   entityDescription: NvaEntityDescription;
 }
 
-export interface NvaSeries {
+export interface NvaChannel {
   id: string;
   type: string;
   identifier: string;

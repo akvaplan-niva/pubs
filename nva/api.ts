@@ -72,11 +72,9 @@ const requestFromInput = (inp: Request | URL | string) => {
 export const fetchNva = async (inp: Request | URL | string) => {
   const req = requestFromInput(inp);
   const res = await fetch(req);
-  if (!res.ok) {
-    throw new Error(
-      req instanceof Request
-        ? `NVA API ${req.method} status ${res.status} for ${req.url}`
-        : `NVA API GET status ${res.status} for ${res.url}`,
+  if (!res?.ok) {
+    console.warn(
+      `NVA API GET status ${res.status} for ${res.url}`,
     );
   }
   return res;
