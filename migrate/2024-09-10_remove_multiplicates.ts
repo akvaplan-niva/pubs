@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
 import { kv } from "../kv/kv.ts";
-import { deletePub } from "../kv/pub.ts";
+import { deletePub } from "../pub/pub.ts";
 
 const remove = [
   "https://doi.org/10.1007/978-3-030-10618-8_12-1", // "https://doi.org/10.1007/978-3-030-39041-9_12", "Effects of Biofouling on the Sinking Behavior of Microplastics in Aquatic Environments"
@@ -14,11 +14,13 @@ const remove = [
   "https://doi.org/10.1111/j.1751-8369.2002.tb00073.x", // "https://doi.org/10.3402/polar.v21i1.6480","The marine ecosystem of Kongsfjorden, Svalbard"]
   "https://doi.org/10.1111/j.1751-8369.2004.tb00128.x", // "https://doi.org/10.3402/polar.v23i1.6265","Lipids and trophic linkages in harp seal (Phoca groenlandica) from the eastern Barents Sea"]
   "https://doi.org/10.1111/j.1751-8369.2005.tb00144.x", // "https://doi.org/10.3402/polar.v24i1.6257","Polar bivalves are characterized by high antioxidant defences"]
+  "https://hdl.handle.net/10037/32358", // UiT version of https://hdl.handle.net/11250/3109447
+  "https://api.test.nva.aws.unit.no/publication/0190a6943283-fa38d3a3-7932-46db-bdfc-05effd221718", //UiT version of https://hdl.handle.net/11250/3109447
 ];
 
 export const removeMultiplicates = async () => {
   for await (const id of remove) {
-    await deletePub(id);
+    await deletePub(id, { by: true });
     const key = ["reject", id];
     await kv.set(key, "removeMultiplicates");
   }
@@ -27,3 +29,5 @@ export const removeMultiplicates = async () => {
 if (import.meta.main) {
   removeMultiplicates();
 }
+// 127 after NVA
+// $ ./kv/_list.ts pub | nd-map d.value | nd-map --select title | nd-count | nd-filter 'd.count>1' | wc -l

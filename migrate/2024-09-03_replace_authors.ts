@@ -1,5 +1,5 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
-import { getPub, updatePub } from "../kv/pub.ts";
+import { getPub, updatePub } from "../pub/pub.ts";
 import type { Pub } from "../pub/types.ts";
 
 const authorReplacements: Pick<Pub, "id" | "authors">[] = [
