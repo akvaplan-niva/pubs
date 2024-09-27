@@ -1,4 +1,5 @@
-#!/usr/bin/env -S deno serve --env-file --allow-env --watch-hmr --port 7770 --allow-net=api.crossref.org,akvaplanists.deno.dev
+#!/usr/bin/env -S deno serve --env-file --allow-env --watch-hmr --port 7770 --allow-net 
+// allow-net: api.crossref.org,akvaplanists.deno.dev,api.deno.com,api.cristin.no
 import "./cron.ts";
 
 import type { Pub } from "./pub/types.ts";
@@ -8,9 +9,11 @@ import { type Route, route } from "@std/http";
 import {
   crossrefWork,
   doiPub,
+  getKv,
   hdlPub,
   nvaPub,
   pathParam,
+  publicationMetadataFromNva,
   send404,
   send405,
   streamKvListValues,
@@ -34,18 +37,13 @@ const routes: Route[] = [
       ),
   },
   {
-    pattern: new URLPattern({ pathname: "/spelling" }),
-    handler: (_request, _info, result) =>
-      streamKvListValues({ prefix: ["spelling"] }, result),
-  },
-  {
     pattern: new URLPattern({ pathname: "/crossref" }),
     handler: (_request, _info, result) =>
       streamKvListValues<CrossrefWork>({ prefix: ["crossref"] }, result),
   },
   {
     pattern: new URLPattern({
-      pathname: "/crossref(/https\:\/\/doi\.org)?/:doi(10.*)",
+      pathname: "/crossref(/https\:\/\/doi\.org)?/:doi(10\.*)",
     }),
     handler: crossrefWork,
   },
@@ -74,6 +72,17 @@ const routes: Route[] = [
         "/pub(/nva|/https\:\/\/api\.nva\.unit\.no\/publication|/https\:\/\/api\.test\.nva\.aws\.unit\.no\/publication)/:id",
     }),
     handler: nvaPub,
+  },
+  {
+    pattern: new URLPattern({ pathname: "/nva" }),
+    handler: (_request, _info, result) =>
+      streamKvListValues<Pub>({ prefix: ["nva"] }, result),
+  },
+  {
+    pattern: new URLPattern({
+      pathname: "/nva/:id",
+    }),
+    handler: publicationMetadataFromNva,
   },
 ];
 
