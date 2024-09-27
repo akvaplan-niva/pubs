@@ -4,7 +4,7 @@ import { deleteKeysAtomic, kv } from "../kv/kv.ts";
 import { deletePub } from "../pub/pub.ts";
 
 // Many of these are mis-attributed Akvaplan-niva by OpenAlex, when containing only NIVAists, like: https://doi.org/10.1016/j.ecoenv.2021.112585
-export const delDois = [
+export const deleteDoiNames = [
   "10.1023/a:1008033201227", // Fixe https://github.com/akvaplan-niva/dois/issues/18#issuecomment-2059476662
   "10.5194/hess-12-491-2008", // Closes https://github.com/akvaplan-niva/dois/issues/25
   "10.2172/757029", // Who are these? Layton, D W; Edson, R; Varela, M; Napier, B
@@ -68,7 +68,7 @@ export const delDois = [
   "10.1016/j.cbpa.2008.07.019", // NO
 ];
 
-const delIds: string[] = [
+const deletePubIds: string[] = [
   "https://api.test.nva.aws.unit.no/publication/0191fb0f7c77-cf85b072-7a07-4953-982f-4f0ea73d8cb8",
   // 2 Akvaplan in Cristin? "https://api.test.nva.aws.unit.no/publication/01907a90bca9-9b582398-b110-4af9-8200-11b20afec801",
 
@@ -78,28 +78,25 @@ const delIds: string[] = [
   "https://api.test.nva.aws.unit.no/publication/0190b80e2d3e-8f7fb51c-669a-4977-bda5-0f74aa52b701",
   //duplicate of https://doi.org/10.1016/j.ecss.2005.12.006:
   "https://api.test.nva.aws.unit.no/publication/01907a924743-fc69947b-6562-4ec2-8152-5263abe6e2ef",
-
-  // Not Sondre Pedersen
+  // Not our Sondre Pedersen:
   "https://hdl.handle.net/11250/3080510",
   // Incomplete/test metadata for: Kunnskapsgrunnlag for nye arter i oppdrett – Del 2
   "https://api.test.nva.aws.unit.no/publication/0191a2e1f31a-cfc03007-918e-4dd2-8ee4-5e51be075ab7",
-  //"11250/2739211", // Only NIVA?
+  // Only NIVA?
+  //"https://hdl.handle.net/11250/2739211",
 ];
 
 export const removeUnwarranted = async () => {
-  const doikeys = delDois.map((doi) => ["pub", doiUrlString(doi)]);
-  await deleteKeysAtomic(doikeys);
-  const crossrefkeys = delDois.map((doi) => ["crossref", doi]);
-  await deleteKeysAtomic(crossrefkeys);
-
-  for (const id of delIds) {
+  for (const doi of deleteDoiNames) {
+    const id = doiUrlString(doi);
     await deletePub(id, { by: true });
+    await kv.delete(["crossref", doi]);
     await kv.set(["reject", id], "removeUnwarranted");
   }
 
-  for (const [, id] of doikeys) {
-    const key = ["reject", id];
-    await kv.set(key, "removeUnwarranted");
+  for (const id of deletePubIds) {
+    await deletePub(id, { by: true });
+    await kv.set(["reject", id], "removeUnwarranted");
   }
 };
 
