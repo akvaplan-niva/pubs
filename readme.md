@@ -25,9 +25,15 @@ Examples:
 
 Get works by Akvaplanist: `/by/:id`: https://pubs.deno.dev/by/aki?limit=-1
 
-See: [akvaplanists/readme.md] for details on name spelling detection.
+## Data flow
 
-## Data
+### Adding pubs
+
+### Remove pubs
+
+Also remove by!
+
+### State
 
 ### Persistence
 
@@ -72,4 +78,12 @@ $ cat <(./kv/_list.ts pub | nd-map d.key[1] | nd-map '{id:d}') <(curl -s https:/
 ["https://doi.org/10.1139/cjfas-56-8-1370",[{"id":"https://doi.org/10.1139/cjfas-56-8-1370"}]]
 ["https://doi.org/10.1016/j.chemgeo.2018.05.040",[{"id":"https://doi.org/10.1016/j.chemgeo.2018.05.040","title":"The GEOTRACES Intermediate Data Product 2017"}]]
 ["https://doi.org/10.1139/f99-075",[{"id":"https://doi.org/10.1139/f99-075","title":"Effect of temperature on the P4501A response in winter- and summer-acclimated Arctic char (<i>Salvelinus alpinus</i>) after oral benzo[a]pyrene exposure"}]]
+```
+
+## How many DOIs are in NVA
+
+```sh
+$ ./kv/_list.ts pub | nd-map d.value | nd-filter 'd.doi?.length>0' | nd-count '{ nva: d.nva?.length>0 }'
+{"nva":false,"count":712}
+{"nva":true,"count":1015}
 ```

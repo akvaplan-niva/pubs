@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-net
 
-import { doiname, isDoiUrl } from "../doi/url.ts";
+import { doiName, isDoiUrl } from "../doi/url.ts";
 
 interface CristinResult {
   links: CristinLink[];
@@ -34,7 +34,7 @@ export const akvaplanDoisInCristinSince = async (
     const { links } = r;
     const doilnk = links?.find((l) => "DOI" === l.url_type);
     if (doilnk) {
-      return isDoiUrl(doilnk.url) ? doiname(doilnk.url) : null;
+      return isDoiUrl(doilnk.url) ? doiName(doilnk.url) : null;
     }
   }).filter((doi: string) => typeof doi === "string").sort();
   return new Set<string>(withDoi);

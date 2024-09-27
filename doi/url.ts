@@ -27,7 +27,7 @@ export const doiUrlString = (name: string) =>
   );
 
 /** DOI name (string starting with "10.") from DOI URL */
-export const doiname = (url: URL | string) =>
+export const doiName = (url: URL | string) =>
   decodeURIComponent(new URL(url).pathname.slice(1).toLowerCase());
 
 export const registrationAgencyUrl = (name: string) =>

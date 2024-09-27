@@ -14,7 +14,6 @@
   "tasks": {
     "check": "deno fmt && deno lint && deno check '**/*.ts'",
     "dev": "./server.ts",
-    "spelling": "./akvaplanists/spelling.ts",
     "refresh": "./kv/refresh.ts",
     "test": "DENO_KV_PATH=':memory:' deno test --env-file --allow-env --allow-net=api.test.nva.aws.unit.no:443"
   }

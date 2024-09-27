@@ -1,5 +1,5 @@
-import type { PubAuthor } from "../pub/types.ts";
-export interface Akvaplanist extends PubAuthor {
+import type { PubContributor } from "../pub/types.ts";
+export interface Akvaplanist extends PubContributor {
   id: string;
   prior?: boolean;
   orcid?: string;

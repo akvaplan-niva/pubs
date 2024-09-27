@@ -1,79 +1,101 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-read --allow-net
-import { doinameset, idset, insertDoiPub, insertNvaPub } from "./kv/pub.ts";
+import { kv } from "./kv/kv.ts";
+import { insertDoiPub, insertNvaPub } from "./pub/pub.ts";
 import { getRegistrar } from "./doi/url.ts";
 import freshCrossrefDois from "./data/fresh_crossref.json" with {
   type: "json",
 };
 
-import { akvaplanDoisInCristinSince } from "./cristin/akvaplan.ts";
+interface RefreshMetdata {
+  when: Date;
+  elapsed: number;
+  count: number;
+}
 
-import {
-  akvaplanDoiPubsInNva,
-  akvaplanNonDoiPubsInNva,
-} from "./nva/akvaplan.ts";
+//import { akvaplanDoisInCristinSince } from "./cristin/akvaplan.ts";
 
-const names = await doinameset();
-const ids = await idset();
+import { akvaplanistPubsInNva, akvaplanPubsInNva } from "./nva/akvaplan.ts";
 
 async function* freshAkvaplanDoiPubsFromManualListAndCristin() {
   for (const doi of freshCrossrefDois) {
-    if (!names.has(doi)) {
-      names.add(doi);
-    }
     yield doi;
   }
+  await kv.set(["refresh", "manual"], { when: new Date() });
 
-  const cristinDoisSince2015 = await akvaplanDoisInCristinSince(2015);
-  const cristinDoisBefore2015 = await akvaplanDoisInCristinSince(1970, 2015);
-  for (const doi of cristinDoisSince2015.union(cristinDoisBefore2015)) {
-    if (!names.has(doi)) {
-      names.add(doi);
-      yield doi;
-    }
-  }
+  // const cristinDoisSince2015 = await akvaplanDoisInCristinSince(2015);
+  // const cristinDoisBefore2015 = await akvaplanDoisInCristinSince(1970, 2015);
+  // for (const doi of cristinDoisSince2015.union(cristinDoisBefore2015)) {
+  //   yield doi;
+  // }
 }
 
-export const refresNvaPubs = async () => {
-  // 1. DOI pubs from NVA
-  // Here NVA metadata is ignored and the pub is injected from original Crossref metadata
-  for await (const [doi, nvapub] of akvaplanDoiPubsInNva()) {
-    try {
-      if (!ids.has(nvapub.id)) {
-        //console.warn("DEBUG NVA DOI", doi);
-        insertDoiPub({ doi, reg: "Crossref" });
-      }
-    } catch (e) {
-      console.error("Error insering DOI", doi, "from NVA", nvapub.id, e);
-    }
-  }
-  // 2. Other, non-DOI pubs
-  for await (const nvapub of akvaplanNonDoiPubsInNva()) {
-    if (!ids.has(nvapub.id)) {
-      await insertNvaPub(nvapub);
-    }
-  }
-};
-
-export const refreshDoiPubs = async () => {
+export const refreshDoiPubsFromManualListAndCristin = async () => {
+  await kv.delete(["refresh", "cristin"]);
   for await (const doi of freshAkvaplanDoiPubsFromManualListAndCristin()) {
     const { agency, status } = await getRegistrar(doi);
     if (status) {
       console.warn("WARN", { doi, status });
     }
     if (agency) {
-      //console.warn("DEBUG", "DOI from Cristin/manual", agency, "DOI:", doi);
+      console.warn("DEBUG", "DOI from Cristin/manual", agency, "DOI:", doi);
       await insertDoiPub({ doi, reg: agency });
     } else {
       console.error({ doi });
     }
   }
+  await kv.set(["refresh", "cristin"], { when: new Date() });
+};
+
+export const refresNvaPubs = async () => {
+  const t0 = performance.now();
+  const lr = await kv.get<RefreshMetdata>(["refresh", "nva"]);
+
+  await kv.delete(["refresh", "nva"]);
+  const lastRefresh = lr?.value;
+  const ids = new Set<string>();
+
+  const params = lastRefresh
+    ? {
+      modified_since: lastRefresh?.when.toJSON().substring(0, 11),
+    }
+    : undefined;
+
+  for await (const nva of akvaplanPubsInNva(params)) {
+    ids.add(nva.identifier);
+    await insertNvaPub(nva);
+    console.warn(ids.size, nva.identifier, "akvaplan");
+  }
+  for await (const nva of akvaplanistPubsInNva(params)) {
+    if (!ids.has(nva.identifier)) {
+      console.warn(nva.id);
+      ids.add(nva.identifier);
+      await insertNvaPub(nva);
+      console.warn(ids.size, nva.identifier, "akvaplanist");
+    }
+  }
+
+  const elapsed = (performance.now() - t0) / 1000;
+  await kv.set(["refresh", "nva"], {
+    when: new Date(),
+    count: ids.size,
+    elapsed,
+  });
+};
+
+export const clearRefreshMetadata = async () => {
+  const atomic = kv.atomic();
+  ["nva", "manual", "cristin"].map((id) => {
+    atomic.delete(["refresh", id]);
+  });
+  await atomic.commit();
 };
 
 export const refresh = async () => {
-  await refreshDoiPubs();
+  await refreshDoiPubsFromManualListAndCristin();
   await refresNvaPubs();
 };
 
 if (import.meta.main) {
+  await clearRefreshMetadata();
   refresh();
 }
