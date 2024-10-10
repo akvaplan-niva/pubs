@@ -1,7 +1,8 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-read --allow-net
 import { kv } from "./kv/kv.ts";
-import { insertDoiPub, insertNvaPub } from "./pub/pub.ts";
-import { getRegistrar } from "./doi/url.ts";
+import { doinames, getPub, insertDoiPub, insertNvaPub } from "./pub/pub.ts";
+import { doiUrlString, getRegistrar } from "./doi/url.ts";
+import { akvaplanDoisInCristinSince } from "./cristin/akvaplan.ts";
 import freshCrossrefDois from "./data/fresh_crossref.json" with {
   type: "json",
 };
@@ -12,72 +13,81 @@ interface RefreshMetdata {
   count: number;
 }
 
-//import { akvaplanDoisInCristinSince } from "./cristin/akvaplan.ts";
-
 import { akvaplanistPubsInNva, akvaplanPubsInNva } from "./nva/akvaplan.ts";
 
-async function* freshAkvaplanDoiPubsFromManualListAndCristin() {
-  for (const doi of freshCrossrefDois) {
+async function* akvaplanDoiPubsFromCristin() {
+  const cristinDoisSince2015 = await akvaplanDoisInCristinSince(2015);
+  const cristinDoisBefore2015 = new Set<string>(); // await akvaplanDoisInCristinSince(1970, 2015);
+  for (const doi of cristinDoisSince2015.union(cristinDoisBefore2015)) {
     yield doi;
   }
-  await kv.set(["refresh", "manual"], { when: new Date() });
-
-  // const cristinDoisSince2015 = await akvaplanDoisInCristinSince(2015);
-  // const cristinDoisBefore2015 = await akvaplanDoisInCristinSince(1970, 2015);
-  // for (const doi of cristinDoisSince2015.union(cristinDoisBefore2015)) {
-  //   yield doi;
-  // }
 }
 
-export const refreshDoiPubsFromManualListAndCristin = async () => {
-  await kv.delete(["refresh", "cristin"]);
-  for await (const doi of freshAkvaplanDoiPubsFromManualListAndCristin()) {
+export const refreshCrossrefPubsFromManualList = async () => {
+  let count = 0;
+  for (const doi of freshCrossrefDois) {
+    console.warn("DEBUG", "New pub from manual list of Crossref DOIs", doi);
+    await insertDoiPub({ doi, reg: "Crossref" });
+    ++count;
+  }
+  await kv.set(["refresh", "manual"], { when: new Date(), count });
+};
+
+export const refreshDoiPubsFromCristin = async () => {
+  let count = 0;
+  for await (const doi of akvaplanDoiPubsFromCristin()) {
     const { agency, status } = await getRegistrar(doi);
     if (status) {
       console.warn("WARN", { doi, status });
     }
     if (agency) {
-      console.warn("DEBUG", "DOI from Cristin/manual", agency, "DOI:", doi);
-      await insertDoiPub({ doi, reg: agency });
+      ++count;
+      const existing = await getPub(doiUrlString(doi));
+      if (existing) {
+        // no-op
+        //console.warn("DEBUG", "Existing DOI from Cristin", doi, existing);
+      } else {
+        console.warn("New DOI from Cristin", doi, agency);
+        await insertDoiPub({ doi, reg: agency });
+      }
     } else {
       console.error({ doi });
     }
   }
-  await kv.set(["refresh", "cristin"], { when: new Date() });
+  await kv.set(["refresh", "cristin"], { when: new Date(), count });
 };
 
 export const refresNvaPubs = async () => {
   const t0 = performance.now();
   const lr = await kv.get<RefreshMetdata>(["refresh", "nva"]);
-
-  await kv.delete(["refresh", "nva"]);
   const lastRefresh = lr?.value;
-  const ids = new Set<string>();
+  const nvaIdentifiers = new Set<string>();
 
   const params = lastRefresh
     ? {
-      modified_since: lastRefresh?.when.toJSON().substring(0, 11),
+      modified_since: lastRefresh?.when.toJSON().substring(0, 10),
     }
     : undefined;
 
+  console.warn("refresNvaPubs", { params, refresh: lastRefresh });
   for await (const nva of akvaplanPubsInNva(params)) {
-    ids.add(nva.identifier);
+    nvaIdentifiers.add(nva.identifier);
     await insertNvaPub(nva);
-    console.warn(ids.size, nva.identifier, "akvaplan");
+    console.warn(nvaIdentifiers.size, nva.identifier, "akvaplan");
   }
   for await (const nva of akvaplanistPubsInNva(params)) {
-    if (!ids.has(nva.identifier)) {
+    if (!nvaIdentifiers.has(nva.identifier)) {
       console.warn(nva.id);
-      ids.add(nva.identifier);
+      nvaIdentifiers.add(nva.identifier);
       await insertNvaPub(nva);
-      console.warn(ids.size, nva.identifier, "akvaplanist");
+      console.warn(nvaIdentifiers.size, nva.identifier, "akvaplanist");
     }
   }
 
   const elapsed = (performance.now() - t0) / 1000;
   await kv.set(["refresh", "nva"], {
     when: new Date(),
-    count: ids.size,
+    count: nvaIdentifiers.size,
     elapsed,
   });
 };
@@ -91,8 +101,11 @@ export const clearRefreshMetadata = async () => {
 };
 
 export const refresh = async () => {
-  await refreshDoiPubsFromManualListAndCristin();
-  await refresNvaPubs();
+  await refreshCrossrefPubsFromManualList();
+  // Enable Cristin until NVA is launched
+  await refreshDoiPubsFromCristin();
+  // Disable NVA until launch
+  // await refresNvaPubs();
 };
 
 if (import.meta.main) {
