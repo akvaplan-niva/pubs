@@ -16,6 +16,7 @@ const remove = [
   "https://doi.org/10.1111/j.1751-8369.2005.tb00144.x", // "https://doi.org/10.3402/polar.v24i1.6257","Polar bivalves are characterized by high antioxidant defences"]
   "https://hdl.handle.net/10037/32358", // UiT version of https://hdl.handle.net/11250/3109447
   "https://api.test.nva.aws.unit.no/publication/0190a6943283-fa38d3a3-7932-46db-bdfc-05effd221718", //UiT version of https://hdl.handle.net/11250/3109447
+  "https://api.test.nva.aws.unit.no/publication/01907a662567-ce61fa65-b0f2-4eaf-bcae-0cfd730b9273", // duplicate (missing doi) of https://doi.org/10.1007/s00300-006-0183-9
 ];
 
 export const removeMultiplicates = async () => {

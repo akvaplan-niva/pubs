@@ -80,10 +80,33 @@ const deletePubIds: string[] = [
   "https://api.test.nva.aws.unit.no/publication/01907a924743-fc69947b-6562-4ec2-8152-5263abe6e2ef",
   // Not our Sondre Pedersen:
   "https://hdl.handle.net/11250/3080510",
+  "https://hdl.handle.net/10037/4458",
+  "https://hdl.handle.net/11250/3014939",
+  "https://api.test.nva.aws.unit.no/publication/0190b613eee8-99ba0dc9-386d-4cbd-8a09-1b7990d05458",
+  "https://api.test.nva.aws.unit.no/publication/0190a19e285a-849e5d2f-e1cb-42a4-9294-96f1b2738979",
+  "https://api.test.nva.aws.unit.no/publication/0190b69139e3-22b1874c-874f-4c9c-a974-527054e181e2",
+  "https://api.test.nva.aws.unit.no/publication/0190b69139e3-22b1874c-874f-4c9c-a974-527054e181e2", // master om lakselus => same as https://munin.uit.no/bitstream/handle/10037/22609/thesis.pdf?sequence=2&isAllowed=y
+  "https://hdl.handle.net/10037/22609",
+
   // Incomplete/test metadata for: Kunnskapsgrunnlag for nye arter i oppdrett – Del 2
   "https://api.test.nva.aws.unit.no/publication/0191a2e1f31a-cfc03007-918e-4dd2-8ee4-5e51be075ab7",
   // Only NIVA?
   //"https://hdl.handle.net/11250/2739211",
+
+  // Not our Jesper Hansen:
+  "https://doi.org/10.1038/s41586-024-07044-5",
+  "https://doi.org/10.1002/cncr.34350",
+
+  // Unknown author
+  "https://hdl.handle.net/11250/3091518",
+
+  // NIVA
+  "https://hdl.handle.net/11250/2739211",
+
+  //Not our Mina Hansen:
+  "https://api.test.nva.aws.unit.no/publication/01909971201b-01393776-c758-4d56-bb0a-e6688eced625",
+  "https://api.test.nva.aws.unit.no/publication/0190b73700f1-459b0622-4471-4e44-86a6-c9a8ea9b3da2",
+  "https://hdl.handle.net/11250/218191",
 ];
 
 export const removeUnwarranted = async () => {

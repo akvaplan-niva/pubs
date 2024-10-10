@@ -74,7 +74,7 @@ including works pre/post-dating employment.
 ## Compare local and production
 
 ```sh
-$ cat <(./kv/_list.ts pub | nd-map d.key[1] | nd-map '{id:d}') <(curl -s https://pubs.deno.dev/pub?limit=-1 | nd-map --select id,title) | nd-group d.id | nd-filter 'd[1].length !== 2'
+$ (base) che@:~/akvaplan-niva/pubs$ cat <(./kv/_list.ts pub | nd-map d.key[1] | nd-map '{id:d}') <(curl -s https://pubs.deno.dev/pub?limit=-1 | nd-map d.value | nd-map --select id,title) | nd-group d.id | nd-filter 'd[1].length !== 2'
 ["https://doi.org/10.1139/cjfas-56-8-1370",[{"id":"https://doi.org/10.1139/cjfas-56-8-1370"}]]
 ["https://doi.org/10.1016/j.chemgeo.2018.05.040",[{"id":"https://doi.org/10.1016/j.chemgeo.2018.05.040","title":"The GEOTRACES Intermediate Data Product 2017"}]]
 ["https://doi.org/10.1139/f99-075",[{"id":"https://doi.org/10.1139/f99-075","title":"Effect of temperature on the P4501A response in winter- and summer-acclimated Arctic char (<i>Salvelinus alpinus</i>) after oral benzo[a]pyrene exposure"}]]
