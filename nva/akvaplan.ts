@@ -39,26 +39,47 @@ const notAkvaplanists = new Map([
   ["aei", "https://api.test.nva.aws.unit.no/cristin/person/1093971"], // aei "Anders Eilertsen",
 ]);
 
+// const nvaUrlToRetrieveWorksOfCristinPerson = (id: number | string) =>
+//   new URL(
+//     `/search/resources?contributor_should=https://api.test.nva.aws.unit.no/cristin/person/${id}`,
+//     "https://api.test.nva.aws.unit.no",
+//   );
+
+const nvaCristinPersonUrl = (id: number | string) =>
+  `https://api.test.nva.aws.unit.no/cristin/person/${id}`;
+
 export async function* akvaplanistPubsInNva(
   searchParams: Iterable<[string, string]> | Record<string, string> = [],
 ) {
-  const params = new URLSearchParams(searchParams);
-  const url = searchUrl(params);
-  console.warn(url.href);
-
   for await (
-    const { id, family, given, spelling, ...more }
+    const { id, family, given, cristin, spelling }
       of await getCurrentAkvaplanists()
   ) {
-    const name = [given, family].join(" ");
+    const params = new URLSearchParams(searchParams);
+
     params.delete("institution");
-    // FIXME Use NVA/Cristin ID if possible to avoid similar-named people matching…
-    //
-    params.set("contributor_name", name);
-    params.set("contributor_not", notAkvaplanists.get("aei")!);
+
+    if (notAkvaplanists.has(id)) {
+      params.set("contributor_not", notAkvaplanists.get(id)!);
+    }
+
+    // Use NVA/Cristin ID if possible to avoid similar-named people matching…
+    if (cristin) {
+      params.set("contributor_should", nvaCristinPersonUrl(cristin));
+    } else {
+      const name = [given, family].join(" ");
+      params.set("contributor_name", name);
+    }
+    // console.warn("akvaplanistPubsInNva", {
+    //   id,
+    //   cristin,
+    //   family,
+    //   given,
+    //   params: [...params],
+    // });
 
     const url = searchUrl(params);
-    console.warn(url.href);
+
     for await (const hit of retrieve(url)) {
       yield hit;
     }
