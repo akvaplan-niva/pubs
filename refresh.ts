@@ -77,7 +77,6 @@ export const refresNvaPubs = async () => {
   }
   for await (const nva of akvaplanistPubsInNva(params)) {
     if (!nvaIdentifiers.has(nva.identifier)) {
-      console.warn(nva.id);
       nvaIdentifiers.add(nva.identifier);
       await insertNvaPub(nva);
       console.warn(nvaIdentifiers.size, nva.identifier, "akvaplanist");
@@ -101,7 +100,7 @@ export const clearRefreshMetadata = async () => {
 };
 
 export const refresh = async () => {
-  await refreshCrossrefPubsFromManualList();
+  // await refreshCrossrefPubsFromManualList();
   // Enable Cristin until NVA is launched
   await refreshDoiPubsFromCristin();
   // Disable NVA until launch
