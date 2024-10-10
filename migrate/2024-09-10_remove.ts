@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
 import { doiUrlString } from "../doi/url.ts";
-import { deleteKeysAtomic, kv } from "../kv/kv.ts";
 import { deletePub } from "../pub/pub.ts";
+import { kv } from "../kv/kv.ts";
 
 // Many of these are mis-attributed Akvaplan-niva by OpenAlex, when containing only NIVAists, like: https://doi.org/10.1016/j.ecoenv.2021.112585
 export const deleteDoiNames = [
@@ -106,9 +106,11 @@ const deletePubIds: string[] = [
   //Not our Mina Hansen:
   "https://api.test.nva.aws.unit.no/publication/01909971201b-01393776-c758-4d56-bb0a-e6688eced625",
   "https://api.test.nva.aws.unit.no/publication/0190b73700f1-459b0622-4471-4e44-86a6-c9a8ea9b3da2",
+  "https://api.test.nva.aws.unit.no/publication/019097afeb68-c0f5342a-ad72-437f-9d99-21e34eacc2cf",
   "https://hdl.handle.net/11250/218191",
 ];
 
+// Remove, but also put id into KV ["reject"] in order to avoid re-creating the unwarranted pub
 export const removeUnwarranted = async () => {
   for (const doi of deleteDoiNames) {
     const id = doiUrlString(doi);
