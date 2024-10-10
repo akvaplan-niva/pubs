@@ -1,7 +1,11 @@
 import { fetchAndStreamJson } from "../io.ts";
 import { Akvaplanist } from "./types.ts";
+
+const base = Deno.env.has("AKVAPLANISTS")
+  ? Deno.env.get("AKVAPLANISTS")
+  : "https://akvaplanists.deno.dev";
 export const currentAkvaplanistsKvUrl = (prefix: string) =>
-  new URL(`https://akvaplanists.deno.dev/kv/${prefix}?format=json`);
+  new URL(`/kv/${prefix}?format=json`, base);
 
 export const getCurrentAkvaplanists = async () => {
   const r = await fetch(currentAkvaplanistsKvUrl("person"));
