@@ -31,44 +31,50 @@ export const doiset = async () =>
 export const doinames = async () =>
   new Set([...(await doiset())].map((url) => doiName(url)));
 
-export const deletePub = async (id: string, opts: { by: boolean }) => {
-  const pub = await getPub(id);
+export const deletePub = async (pubid: string, opts: { by: boolean }) => {
+  const pub = await getPub(pubid);
   if (pub) {
-    await kv.delete(pubkey({ id }));
+    await kv.delete(pubkey({ id: pubid }));
   }
   // deleteCrossref
   // deleteNva
-  if (
-    id.startsWith(
-      "https://api.test.nva.aws.unit.no/publication",
-    )
-  ) {
-    const nva = id.split("/").at(-1);
-    console.warn("DELETE", ["nva", nva]);
-    await kv.delete(["nva", nva]);
-  }
+  // if (
+  //   id.startsWith(
+  //     nvabase
+  //   )
+  // ) {
+  //   const nva = id.split("/").at(-1);
+  //   console.warn("DELETE", ["nva", nva]);
+  //   await kv.delete(["nva", nva]);
+  // }
 
   // Delete from "by"
   if (opts.by) {
     if (pub) {
-      const identities = pub?.authors.filter((a) => "identity" in a).map((a) =>
-        a.identity
-      );
-      console.warn(pub.id, identities);
+      const identities = pub?.authors.filter((a) => "identity" in a).map((
+        { identity },
+      ) => identity?.id!);
+
       // loop authors an delete by identity pub.id
-      throw id;
-    } else {
-      console.warn(
-        `WARN: FIXME inefficient algo, looping KV prefix ["by"] for already deleted pub ${id}`,
-      );
-      const by = kv.list({ prefix: ["by"] });
-      for await (const { key } of by) {
-        const match = key.at(2) === id;
-        if (match) {
-          console.warn("DELETE", key);
-          await kv.delete(key);
-        }
+      const atomic = kv.atomic();
+      for await (const akvaplanist of identities) {
+        const key = ["by", pubid, akvaplanist];
+        console.warn("DELETE", key);
+        atomic.delete(key);
       }
+      await atomic.commit();
+    } else {
+      // console.warn(
+      //   `WARN: Inefficient loop of KV prefix ["by"] for already deleted pub ${pubid}`,
+      // );
+      // const by = kv.list({ prefix: ["by"] });
+      // for await (const { key } of by) {
+      //   const match = key.at(2) === pubid;
+      //   if (match) {
+      //     console.warn("DELETE", key);
+      //     await kv.delete(key);
+      //   }
+      // }
     }
   }
 };
@@ -104,11 +110,12 @@ export const insertNvaPub = async (nvapub: NvaPublication) => {
   // Does pub have DOI?
   if (doi) {
     console.assert(
-      doiName(doi) === doiUrlString(pub.id),
+      doiUrlString(doi) === doiUrlString(pub.id),
       `Pub id (${pub.id}) and doi (${doi}) mismatch`,
     );
     const existing = await getPub(pub.id);
     if (existing && existing?.nva !== nva) {
+      // Example: Updating existing KV pub 10.3389/fenvs.2021.662168 with nva id 01907a9f8b3c-adae035b-97f4-428c-af0a-d6f78b3c31c4 was 01907a754a97-1e0b1c8f-8ae0-4dab-8bb6-3feb2a57e72a
       console.warn(
         "Updating existing KV pub",
         doi,
@@ -233,10 +240,15 @@ export const insertPub = async (
 
 export const updatePub = async (
   pub: Pub,
+  versionstamp?: string,
 ) => {
   const res = await prepareAtomicSetPub(pub);
   if (res) {
     const { value, atomic } = res;
+    if (versionstamp) {
+      const key = ["pub", pub.id];
+      atomic.check({ key, versionstamp });
+    }
     const final = setAtomicBys(value, atomic);
     return await final.commit();
   }
