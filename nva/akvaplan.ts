@@ -1,11 +1,6 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net=api.test.nva.aws.unit.no
 import { getCurrentAkvaplanists } from "../akvaplanists/akvaplanists.ts";
-import { Akvaplanist } from "../akvaplanists/types.ts";
-import { isDoiUrl } from "../doi/url.ts";
-import { pubFromNva } from "../pub/pub_from_nva.ts";
-import { PubContributor } from "../pub/types.ts";
 import { retrieve, searchUrl } from "./search.ts";
-import type { NvaPublication } from "./types.ts";
 
 // FIXME akvaplanPubsInNva: Search also by names, since authors may have work only connected to other institutions while working at Akvaplan,
 // or works that explicitly linked with Akvaplan-niva in the original, but are lacking affiliation in the NVA metadata
@@ -52,8 +47,7 @@ export async function* akvaplanistPubsInNva(
   searchParams: Iterable<[string, string]> | Record<string, string> = [],
 ) {
   for await (
-    const { id, family, given, cristin, spelling }
-      of await getCurrentAkvaplanists()
+    const { id, family, given, cristin } of await getCurrentAkvaplanists()
   ) {
     const params = new URLSearchParams(searchParams);
 

@@ -10,15 +10,15 @@ Deno.test("NVA", async (t) => {
     ) as NvaPublication;
 
     // Add series name to skip remote fetch during test
-    report.entityDescription.reference.publicationContext.series.name =
+    report.entityDescription.reference.publicationContext.series!.name =
       "NIVA_REPORT_NAME";
 
     const expect: Pub = {
       id: "https://hdl.handle.net/11250/3034605",
-      //nva: "01907a96b6e6-832117b6-3f8a-4a5a-9e0c-846a7fce9285",
+      nva: "01907a96b6e6-832117b6-3f8a-4a5a-9e0c-846a7fce9285",
       title:
         "Episoder med skadelige alger og maneter i oppdrett- hva kan vi lære av erfaringer fra merdkanten",
-      type: "report",
+      type: "ReportResearch",
       authors: [
         { "name": "Trine Dale" },
         { "name": "Trude Kristin Borch" },
@@ -27,17 +27,19 @@ Deno.test("NVA", async (t) => {
         { "name": "Fernanda Cisterna" },
       ],
       container: "NIVA_REPORT_NAME",
-      "created": new Date("2024-07-03T21:53:35.974Z"),
-      "modified": new Date("2024-08-29T18:46:05.094Z"),
-      "published": "2022",
+      created: new Date("2024-07-03T21:53:35.974Z"),
+      modified: new Date("2024-08-29T18:46:05.094Z"),
+      published: "2022",
+      doi: undefined,
+      url: undefined,
+      contributors: undefined,
+      parent: undefined,
+      projects: undefined,
     };
+    // @ts-ignore FIXME
     assertEquals(await pubFromNva(report), expect);
   });
   // await t.step("With DOI", async () => {
   //   assertEquals(await pubFromNva({}), {});
   // });
 });
-
-
-// why not URL ?
-// https://api.test.nva.aws.unit.no/publication/01907a6c3043-a175e561-d9f9-4066-979d-ec63dc769a43

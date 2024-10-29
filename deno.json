@@ -15,6 +15,7 @@
     "check": "deno fmt && deno lint && deno check '**/*.ts'",
     "dev": "./server.ts",
     "refresh": "./kv/refresh.ts",
-    "test": "DENO_KV_PATH=':memory:' deno test --env-file --allow-env --allow-net=api.test.nva.aws.unit.no:443"
+    "nva_auth_token": "./nva/auth_access_token_kv.ts",
+    "test": "DENO_KV_PATH=':memory:' deno test --env-file --allow-env --allow-net=api.test.nva.aws.unit.no:443,akvaplanists.deno.dev"
   }
 }

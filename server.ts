@@ -9,7 +9,6 @@ import { type Route, route } from "@std/http";
 import {
   crossrefWork,
   doiPub,
-  getKv,
   hdlPub,
   nvaPub,
   pathParam,
@@ -20,14 +19,6 @@ import {
 } from "./server_handlers.ts";
 
 const routes: Route[] = [
-  {
-    pattern: new URLPattern({ pathname: "/akvaplanist/:id" }),
-    handler: (_request, _info, result) =>
-      streamKvListValues(
-        { prefix: ["akvaplanist", pathParam(result, "id") as string] },
-        result,
-      ),
-  },
   {
     pattern: new URLPattern({ pathname: "/by/:id" }),
     handler: (_request, _info, result) =>

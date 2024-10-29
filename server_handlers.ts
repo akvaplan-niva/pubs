@@ -2,7 +2,7 @@ import { kv } from "./kv/kv.ts";
 import { getCrossrefWorkFromApi } from "./crossref/work.ts";
 import { doiUrlString } from "./doi/url.ts";
 import { getOrLookupCrossrefWork } from "./kv/crossref.ts";
-import { getPub } from "./pub/pub.ts";
+import { getPub, getPubAndReidentify } from "./pub/pub.ts";
 import { getNvaConfigFromEnv } from "./nva/config.ts";
 
 export const crossrefWork = async (
@@ -50,7 +50,7 @@ const getAndSendPub = async (
 ) => {
   const _detect = result && searchParam(result, "identify");
   const detect = _detect && ["1", "true"].includes(_detect) ? true : false;
-  const pub = detect ? await getPub(id) : await getPub(id);
+  const pub = detect ? await getPubAndReidentify(id) : await getPub(id);
   return pub ? Response.json(pub) : send404();
 };
 

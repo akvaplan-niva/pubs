@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-read --allow-net
 import { kv } from "./kv/kv.ts";
-import { doinames, getPub, insertDoiPub, insertNvaPub } from "./pub/pub.ts";
+import { getPub, insertDoiPub, insertNvaPub } from "./pub/pub.ts";
 import { doiUrlString, getRegistrar } from "./doi/url.ts";
 import { akvaplanDoisInCristinSince } from "./cristin/akvaplan.ts";
 import freshCrossrefDois from "./data/fresh_crossref.json" with {
@@ -58,17 +58,19 @@ export const refreshDoiPubsFromCristin = async () => {
 };
 
 export const refresNvaPubs = async () => {
-  const t0 = performance.now();
   const lr = await kv.get<RefreshMetdata>(["refresh", "nva"]);
   const lastRefresh = lr?.value;
   const nvaIdentifiers = new Set<string>();
-
-  const params = lastRefresh
-    ? {
-      modified_since: lastRefresh?.when.toJSON().substring(0, 10),
-    }
-    : undefined;
-
+  console.warn(lastRefresh);
+  // const params = lastRefresh
+  //   ? {
+  //     modified_since: lastRefresh?.when.toJSON().substring(0, 10),
+  //   }
+  //   : undefined;
+  const today = new Date();
+  const params = {
+    modified_since: today.toJSON().substring(0, 10),
+  };
   console.warn("refresNvaPubs", { params, refresh: lastRefresh });
   for await (const nva of akvaplanPubsInNva(params)) {
     nvaIdentifiers.add(nva.identifier);
@@ -83,12 +85,12 @@ export const refresNvaPubs = async () => {
     }
   }
 
-  const elapsed = (performance.now() - t0) / 1000;
-  await kv.set(["refresh", "nva"], {
-    when: new Date(),
-    count: nvaIdentifiers.size,
-    elapsed,
-  });
+  // const elapsed = (performance.now() - t0) / 1000;
+  // await kv.set(["refresh", "nva"], {
+  //   when: new Date(),
+  //   count: nvaIdentifiers.size,
+  //   elapsed,
+  // });
 };
 
 export const clearRefreshMetadata = async () => {
@@ -100,11 +102,11 @@ export const clearRefreshMetadata = async () => {
 };
 
 export const refresh = async () => {
-  // await refreshCrossrefPubsFromManualList();
+  //await refreshCrossrefPubsFromManualList();
   // Enable Cristin until NVA is launched
-  await refreshDoiPubsFromCristin();
+  // await refreshDoiPubsFromCristin();
   // Disable NVA until launch
-  // await refresNvaPubs();
+  await refresNvaPubs();
 };
 
 if (import.meta.main) {
