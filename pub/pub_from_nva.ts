@@ -6,9 +6,11 @@ import type {
   NvaEntityDescription,
   NvaPublication,
   NvaPublicationContext,
+  NvaTime,
 } from "../nva/types.ts";
 
 import { Pub } from "./types.ts";
+import { getNva, isNvaUrl } from "../nva/api.ts";
 
 export const pubFromNva = async (nva: NvaPublication) => {
   const {
@@ -16,37 +18,38 @@ export const pubFromNva = async (nva: NvaPublication) => {
     publishedDate,
     modifiedDate,
     associatedArtifacts,
-    additionalIdentifiers,
   } = nva;
 
-  const { mainTitle, reference } = entityDescription;
-  const { doi } = reference;
+  const { reference } = entityDescription;
 
-  const handle = nva.handle ??
-    additionalIdentifiers?.find(({ type }) => type === "HandleIdentifier")
-      ?.value;
+  const id = extractId(nva);
 
-  const id = doi && isDoiUrl(doi)
-    ? doi
-    : handle && (isHandleUrl(handle) || isHandle(handle))
-    ? handleUrlString(handle)
-    : nvaUrlString(nva.id);
-
-  const title = mainTitle
-    .replace(/[\r\n]/g, " ")
-    .replace(/[\s]{2,}/g, " ")
-    .trim();
+  const title = extractTitle({ entityDescription });
 
   const type = typeFromNvaType(extractNvaType(nva));
 
   const authors = extractAuthors(entityDescription.contributors) ?? [];
-  const contributors = extractContributors(entityDescription.contributors);
-  const { publicationContext } = reference;
+  const _contributors = extractContributors(entityDescription.contributors);
+  const contributors = _contributors?.length > 0 ? _contributors : undefined;
+  const { publicationContext } = reference; //publicationIn
+
   const container = await extractOrFetchContainer(publicationContext);
 
   const { publicationDate: { year, month, day } } = entityDescription;
 
-  const published = extractPublished({ year, month, day });
+  const _parent = "id" in publicationContext
+    ? publicationContext.id
+    : undefined;
+
+  const parentInNva = isNvaUrl(_parent) &&
+      new URL(_parent as string).pathname.startsWith("/publication/")
+    ? await getNva<NvaPublication>(_parent as string)
+    : undefined;
+
+  const parent = parentInNva ? extractId(parentInNva) : undefined;
+  const published = isEvent(nva)
+    ? extractEventTime(publicationContext)
+    : extractPublished({ year, month, day });
   const created = new Date(publishedDate);
   const modified = new Date(modifiedDate);
 
@@ -55,9 +58,20 @@ export const pubFromNva = async (nva: NvaPublication) => {
   );
   const url = link ? String(link.id) : undefined;
 
+  const doiNorm = url && isDoiUrl(url) ? doiName(url) : undefined;
+
+  const projects = nva?.projects?.length > 0
+    ? nva?.projects.map(({ id, name, type }) => ({
+      cristin: Number(id.split("/").at(-1)),
+      name,
+      type,
+    }))
+    : undefined;
+
   return {
     id,
-    doi: doi ? doiName(doi) : undefined,
+    parent,
+    doi: doiNorm,
     nva: nva.id.split("/").at(-1),
     url,
     title,
@@ -66,12 +80,17 @@ export const pubFromNva = async (nva: NvaPublication) => {
     container,
     authors,
     contributors,
+    projects,
     created,
     modified,
   } satisfies Pub;
 };
 
 const authorTypes = new Set(["Creator", "Journalist"]);
+
+const extractAnthologyContainer = (
+  entityDescription: NvaEntityDescription,
+) => entityDescription?.mainTitle;
 
 const extractAuthors = (contributors: NvaContributor[]) =>
   structuredClone(contributors)
@@ -87,17 +106,49 @@ const extractContributors = (contributors: NvaContributor[]) =>
       { identity: { name } },
     ) => ({ name }));
 
-const extractAnthology = (
-  entityDescription: NvaEntityDescription,
-) => entityDescription?.mainTitle;
+const extractEventTime = (ctx: NvaPublicationContext) => {
+  if ("time" in ctx) {
+    const { from, to }: NvaTime = ctx.time;
+    if (from && to && from !== to) {
+      return [from, to].join("/").replaceAll("T00:00:00Z", "");
+    }
+    if (from) {
+      return from.replace("T00:00:00Z", "");
+    }
+    if (to) {
+      return to.replace("T00:00:00Z", "");
+    }
+  }
+  return String(-9999);
+};
 
 const extractOrFetchContainer = async (
   publicationContext: NvaPublicationContext,
 ) => {
-  const { series, type, id, disseminationChannel } = publicationContext;
+  const {
+    label,
+    series,
+    type,
+    id,
+    disseminationChannel,
+    entityDescription,
+    publisher,
+  } = publicationContext;
+
+  if (label) {
+    return label;
+  }
 
   if (["Anthology"].includes(type as string)) {
-    return await extractAnthology(publicationContext.entityDescription);
+    if (id && !entityDescription) {
+      const parent = await getNva(id) as NvaPublication;
+      if (parent) {
+        return extractTitle(parent);
+      }
+    }
+    if (entityDescription) {
+      return extractAnthologyContainer(entityDescription);
+    }
   }
 
   if (disseminationChannel) {
@@ -123,8 +174,45 @@ const extractOrFetchContainer = async (
       }
     }
   }
+  if (publisher) {
+    const { name, id } = publisher;
+    if (name) {
+      return name;
+    } else if (id) {
+      const publ = await getChannel(id);
+      if (publ) {
+        return publ.name;
+      }
+    }
+  }
+
   return "";
 };
+
+export const extractId = (
+  { id, handle, entityDescription, additionalIdentifiers }: NvaPublication,
+) => {
+  const { reference } = entityDescription;
+  const { doi } = reference;
+
+  const hdl = handle ??
+    additionalIdentifiers?.find(({ type }) => type === "HandleIdentifier")
+      ?.value;
+
+  return doi && isDoiUrl(doi)
+    ? doi
+    : hdl && (isHandleUrl(hdl) || isHandle(hdl as string))
+    ? handleUrlString(hdl)
+    : nvaUrlString(id);
+};
+
+const extractTitle = (
+  { entityDescription }: Pick<NvaPublication, "entityDescription">,
+) =>
+  entityDescription.mainTitle
+    .replace(/[\r\n]/g, " ")
+    .replace(/[\s]{2,}/g, " ")
+    .trim();
 
 const extractPublished = (
   { year, month, day }: {
@@ -143,6 +231,28 @@ const extractPublished = (
   return String(year);
 };
 
+export const extractNvaType = (
+  nva: NvaPublication,
+) => {
+  const {
+    entityDescription: {
+      reference: {
+        publicationInstance,
+        publicationContext: { type },
+      },
+    },
+  } = nva;
+  if ("type" in publicationInstance) {
+    return publicationInstance.type;
+  }
+  return type instanceof Array ? type.sort().join("/") : type;
+};
+
+const isEvent = (nva: NvaPublication) =>
+  ["ConferencePoster", "ConferenceLecture", "Lecture"].includes(
+    extractNvaType(nva),
+  );
+
 const nvaUrlString = (id: string | URL) =>
   new URL(id, "https://nva.sikt.no/registration/").href;
 
@@ -159,19 +269,9 @@ const nvaUrlString = (id: string | URL) =>
 // const pdfs = associatedArtifacts ? extractPdfs(associatedArtifacts) : [];
 // const pdf = pdfs ? pdfs.at(0)?.name : undefined;
 
-const extractNvaType = (
-  nva: NvaPublication,
-) => {
-  const { entityDescription: { reference: { publicationContext: { type } } } } =
-    nva;
-  return type instanceof Array ? type.sort().join("/") : type;
-};
-
 const typeFromNvaType = (nvapubtype: string) => {
   switch (nvapubtype) {
-    // case "anthology":
-    //   return "book-chapter";
     default:
-      return nvapubtype.toLowerCase();
+      return nvapubtype;
   }
 };

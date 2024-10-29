@@ -9,7 +9,8 @@ const spellings = new Map<string, AkvaplanistSpelling>();
 
 export const getSpellings = async () => {
   if (spellings.size === 0) {
-    for await (const [k, v] of await initIdsAndSpellingsMap()) {
+    const initIter = currentAndPriorAvaplanists();
+    for await (const [k, v] of await initIdsAndSpellingsMap(initIter)) {
       spellings.set(k, v);
     }
   }
@@ -20,35 +21,42 @@ export const normUpper = (name: string) =>
   name.replaceAll(".", " ").replace(/[\s]{2,}/g, " ").trim()
     .toLocaleUpperCase("no");
 
-const initIdsAndSpellingsMap = async () => {
-  const spellings = new Map<string, AkvaplanistSpelling>();
-  for await (const a of currentAndPriorAvaplanists()) {
-    const { id, family, given, openalex, orcid, prior } = a;
-    ids.set(a.id, { id, family, given, openalex, orcid, prior });
+export const prepareSpelling = (a: Akvaplanist) => {
+  const { id, family, given, openalex, orcid, prior } = a;
+  ids.set(a.id, { id, family, given, openalex, orcid, prior });
 
-    const spelling: AkvaplanistSpelling = {
-      id: a.id,
-      gn: new Set(),
-      fn: new Set(),
-    };
-    spelling.fn.add(a.family!);
-    spelling.gn.add(a.given!);
-    // hack to fix mixup of family <-> given
-    spelling.gn.add(a.family!);
-    spelling.fn.add(a.given!);
+  const spelling: AkvaplanistSpelling = {
+    id: a.id,
+    gn: new Set(),
+    fn: new Set(),
+  };
+  spelling.fn.add(a.family!);
+  spelling.gn.add(a.given!);
+  // hack to fix mixup of family <-> given
+  spelling.gn.add(a.family!);
+  spelling.fn.add(a.given!);
 
-    if (a.spelling) {
-      if (a.spelling.gn) {
-        for (const g of a.spelling.gn) {
-          spelling.gn.add(g);
-        }
-      }
-      if (a.spelling.fn) {
-        for (const f of a.spelling.fn) {
-          spelling.fn.add(f);
-        }
+  if (a.spelling) {
+    if (a.spelling.gn) {
+      for (const g of a.spelling.gn) {
+        spelling.gn.add(g);
       }
     }
+    if (a.spelling.fn) {
+      for (const f of a.spelling.fn) {
+        spelling.fn.add(f);
+      }
+    }
+  }
+  return spelling;
+};
+
+export const initIdsAndSpellingsMap = async (
+  identities: AsyncGenerator<Akvaplanist>,
+) => {
+  const spellings = new Map<string, AkvaplanistSpelling>();
+  for await (const a of identities) {
+    const spelling = prepareSpelling(a);
     spellings.set(a.id, spelling);
   }
   return spellings;
@@ -76,14 +84,16 @@ export const findId = async (
   if (!spellings) {
     spellings = await getSpellings();
   }
+
   if (family && given) {
     return detectFamilyGiven({ family, given }, spellings);
   }
 
-  for (const [id, { fn, gn }] of spellings) {
-    const fam = [...fn].find((f) => name?.endsWith(f));
+  for (const [id, spel] of spellings) {
+    const { fn, gn } = spel;
+    const fam = [...fn ?? []].find((f) => name?.endsWith(" " + f));
     if (fam) {
-      const giv = [...gn].find((g) => name?.startsWith(g));
+      const giv = [...gn ?? []]?.find((g) => name?.startsWith(g + " "));
       if (giv) {
         return id;
       }
@@ -91,11 +101,11 @@ export const findId = async (
   }
 };
 
-export const identify = async (params: {
+export const identify = async (meta: {
   family?: string;
   given?: string;
   name?: string;
-}) => {
-  const id = await findId(params);
+}, spellings?: Map<string, AkvaplanistSpelling>) => {
+  const id = await findId(meta, spellings);
   return id && ids.has(id) ? ids.get(id) : undefined;
 };

@@ -5,10 +5,19 @@ import type { Pub } from "./types.ts";
 const dateFromParts = (p: [number, number, number?]) =>
   p.map((n, i) => 0 === i ? String(n) : String(n).padStart(2, "0")).join("-");
 
+const nvaTypeFromWorkType = (type: string) => {
+  switch (type) {
+    case "journal-article":
+      return "AcademicArticle";
+    default:
+      return type;
+  }
+};
+
 export const pubFromCrossrefWork = (work: CrossrefWork) => {
   const doi = work.DOI;
   const id = doiUrlString(doi);
-  const type = work.type;
+  const type = nvaTypeFromWorkType(work.type);
   const [title] = work?.title;
   const [container] = work?.["container-title"];
   const authors = work.author?.map(({ family, given }) => (

@@ -17,18 +17,41 @@ const remove = [
   "https://hdl.handle.net/10037/32358", // UiT version of https://hdl.handle.net/11250/3109447
   "https://api.test.nva.aws.unit.no/publication/0190a6943283-fa38d3a3-7932-46db-bdfc-05effd221718", //UiT version of https://hdl.handle.net/11250/3109447
   "https://api.test.nva.aws.unit.no/publication/01907a662567-ce61fa65-b0f2-4eaf-bcae-0cfd730b9273", // duplicate (missing doi) of https://doi.org/10.1007/s00300-006-0183-9
+  "https://api.test.nva.aws.unit.no/publication/0190936c4d5c-7b19b58b-dc69-490c-92bd-fb9faa7d717b", // duplicate of https://hdl.handle.net/11250/2615018
+  "https://api.test.nva.aws.unit.no/publication/0190a1c855c4-405ad42e-ae30-45c9-9732-20f8c7adcccb", // duplcate of https://hdl.handle.net/10037/5926
+  "https://api.test.nva.aws.unit.no/publication/0190a19baa21-d026e318-ae3b-41e4-8d73-9497ab8e83b5", // duplicate of https://hdl.handle.net/10037/29393
 ];
 
 export const removeMultiplicates = async () => {
+  let i = 0;
   for await (const id of remove) {
     await deletePub(id, { by: true });
     const key = ["reject", id];
     await kv.set(key, "removeMultiplicates");
+    console.warn(i++, id);
   }
 };
 
 if (import.meta.main) {
   removeMultiplicates();
 }
-// 127 after NVA
-// $ ./kv/_list.ts pub | nd-map d.value | nd-map --select title | nd-count | nd-filter 'd.count>1' | wc -l
+
+// ~/akvaplan-niva/pubs$ ./kv/_list.ts pub | nd-map d.value | nd-filter '!/conference/i.test(d.type)' | nd-map --select title | nd-count | nd-filter 'd.count>2'  # | nd-sort --reverse --numeric --on count
+// {"title":"A review of the culture potential of spotted wolffish Anarhichas minor Olafsen","count":3}
+// {"title":"Evolusjon og artsdannelse i nord-norske innsjøer","count":3}
+// {"title":"Shell growth and environmental control of methanophyllic Thyasirid bivalves from Svalbard cold seeps","count":3}
+// {"title":"The effect of temperature and fish size on growth of juvenile lumpfish (Cyclopterus lumpus L.)","count":3}
+
+// che@:~/akvaplan-niva/pubs$ ./kv/_list.ts pub | nd-map d.value | nd-map --select title | nd-count | nd-filter 'd.count>2' | nd-sort --reverse --numeric --on count
+// {"title":"Nutrients vs. turbulence, and the future of Arctic Ocean primary production","count":5}
+// {"title":"Developmental effects of embryonic exposure to a water-soluble fraction of crude oil on early life stages of capelin (Mallotus villosus)","count":3}
+// {"title":"Plastic ingestion and associated additives in Faroe Islands chicks of the Northern Fulmar Fulmarus glacialis","count":3}
+// {"title":"Differential methane oxidation activity and microbial community composition at cold seeps in the Arctic off western Svalbard","count":3}
+// {"title":"A review of the culture potential of spotted wolffish Anarhichas minor Olafsen","count":3}
+// {"title":"Arctic zooplankton in changing marine lightscape","count":3}
+// {"title":"Combined effects of ocean acidification, ocean warming and oil related discharges","count":3}
+// {"title":"Evolusjon og artsdannelse i nord-norske innsjøer","count":3}
+// {"title":"Shell growth and environmental control of methanophyllic Thyasirid bivalves from Svalbard cold seeps","count":3}
+// {"title":"In silico and experimental screening platform for characterizing environmental impact of industrial development in the Arctic – an overview of the project EXPECT","count":3}
+// {"title":"Seasonal variability and fluxes of nitrate in the surface waters over the Arctic shelf slope","count":3}
+// {"title":"The effect of temperature and fish size on growth of juvenile lumpfish (Cyclopterus lumpus L.)","count":3}

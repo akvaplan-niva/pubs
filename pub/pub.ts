@@ -9,7 +9,7 @@ import type { DoiRegObject, Pub, PubContributor } from "./types.ts";
 
 import { pubFromCrossrefWork } from "./pub_from_crossref.ts";
 import { validatePub } from "./validate_pub.ts";
-import { doiName, doiUrlString, isDoiUrl } from "../doi/url.ts";
+import { doiName, doiUrlString, getRegistrar, isDoiUrl } from "../doi/url.ts";
 import { NvaPublication } from "../nva/types.ts";
 import { pubFromNva } from "./pub_from_nva.ts";
 
@@ -31,7 +31,7 @@ export const doiset = async () =>
 export const doinames = async () =>
   new Set([...(await doiset())].map((url) => doiName(url)));
 
-export const deletePub = async (pubid: string, opts: { by: boolean }) => {
+export const deletePub = async (pubid: string) => {
   const pub = await getPub(pubid);
   if (pub) {
     await kv.delete(pubkey({ id: pubid }));
@@ -49,33 +49,31 @@ export const deletePub = async (pubid: string, opts: { by: boolean }) => {
   // }
 
   // Delete from "by"
-  if (opts.by) {
-    if (pub) {
-      const identities = pub?.authors.filter((a) => "identity" in a).map((
-        { identity },
-      ) => identity?.id!);
+  if (pub) {
+    const identities = pub?.authors.filter((a) => "identity" in a).map((
+      { identity },
+    ) => identity?.id!);
 
-      // loop authors an delete by identity pub.id
-      const atomic = kv.atomic();
-      for await (const akvaplanist of identities) {
-        const key = ["by", pubid, akvaplanist];
-        console.warn("DELETE", key);
-        atomic.delete(key);
-      }
-      await atomic.commit();
-    } else {
-      // console.warn(
-      //   `WARN: Inefficient loop of KV prefix ["by"] for already deleted pub ${pubid}`,
-      // );
-      // const by = kv.list({ prefix: ["by"] });
-      // for await (const { key } of by) {
-      //   const match = key.at(2) === pubid;
-      //   if (match) {
-      //     console.warn("DELETE", key);
-      //     await kv.delete(key);
-      //   }
-      // }
+    // loop authors an delete by identity pub.id
+    const atomic = kv.atomic();
+    for await (const akvaplanist of identities) {
+      const key = ["by", pubid, akvaplanist];
+      console.warn("DELETE", key);
+      atomic.delete(key);
     }
+    await atomic.commit();
+  } else {
+    // console.warn(
+    //   `WARN: Inefficient loop of KV prefix ["by"] for already deleted pub ${pubid}`,
+    // );
+    // const by = kv.list({ prefix: ["by"] });
+    // for await (const { key } of by) {
+    //   const match = key.at(2) === pubid;
+    //   if (match) {
+    //     console.warn("DELETE", key);
+    //     await kv.delete(key);
+    //   }
+    // }
   }
 };
 export const getPub = async (id: string) => {
@@ -83,14 +81,21 @@ export const getPub = async (id: string) => {
     return (await kv.get<Pub>(pubkey({ id })))?.value;
   }
 };
+export const getPubAndReidentify = async (id: string) => {
+  const pub = await getPub(id);
+  if (pub) {
+    return augmentPub(pub);
+  }
+};
+
 export const insertDoiPub = (
-  { doi, reg, add }: DoiRegObject & { add?: Partial<Pub> },
+  { doi, reg, add }: DoiRegObject & { add?: Pub | Partial<Pub> },
 ) => {
   switch (reg) {
     case "Crossref":
       return insertPubFromCrossrefDoi(doi, add);
     case "DataCite":
-      return insertPubFromDatacite(doi, add);
+      return insertPubFromDatacite(doi, add as Pub);
     default:
       throw new RangeError(`Unsupported DOI registration agency: ${reg}`);
   }
@@ -98,6 +103,7 @@ export const insertDoiPub = (
 
 export const insertNvaPub = async (nvapub: NvaPublication) => {
   const pub = await pubFromNva(nvapub);
+
   const { doi, nva } = pub;
   if (nva) {
     if (JSON.stringify(nvapub).length < 65535) {
@@ -109,10 +115,17 @@ export const insertNvaPub = async (nvapub: NvaPublication) => {
 
   // Does pub have DOI?
   if (doi) {
+    if (!isDoiUrl(pub.id)) {
+      const nvaid = nvapub.id;
+      pub.id = doiUrlString(doi);
+      await kv.delete(["pub", nvaid]);
+    }
+
     console.assert(
       doiUrlString(doi) === doiUrlString(pub.id),
       `Pub id (${pub.id}) and doi (${doi}) mismatch`,
     );
+
     const existing = await getPub(pub.id);
     if (existing && existing?.nva !== nva) {
       // Example: Updating existing KV pub 10.3389/fenvs.2021.662168 with nva id 01907a9f8b3c-adae035b-97f4-428c-af0a-d6f78b3c31c4 was 01907a754a97-1e0b1c8f-8ae0-4dab-8bb6-3feb2a57e72a
@@ -128,8 +141,11 @@ export const insertNvaPub = async (nvapub: NvaPublication) => {
       await updatePub(existing);
     } else {
       // If DOI, use Crossref metadata, but add NVA id; useful to find PDF and to lookup parents and siblings for book chapters like https://doi.org/10.26530/oapen_627870 => https://test.nva.sikt.no/registration/01907a80beda-b1a7fe47-42b8-4fa1-8898-783543242ddd
-      // FIXME: stop guessing registry!
-      await insertDoiPub({ doi, reg: "Crossref", add: { nva } });
+      const reg = await getRegistrar(doi);
+      if (reg) {
+        const { agency } = reg;
+        await insertDoiPub({ doi, reg: agency, add: { ...pub } });
+      }
     }
   } else {
     await insertPub(pub);
@@ -166,14 +182,22 @@ export const insertPubs = async (pubs: Pub[]) => {
   }
 };
 
+// deno-lint-ignore no-unused-vars
+const wipePreviusIdentities = ({ identity, ...a }: PubContributor) => a;
+
 const augmentPub = async (pub: Pub) => {
   const aug = structuredClone(pub);
-  const authors = await findIdentities(aug.authors);
+  const authors = await findIdentities(
+    //remove previously identified in order to wipe mis-identifications
+    aug.authors.map(wipePreviusIdentities),
+  );
 
   aug.authors = authors;
 
   if (aug.contributors && aug.contributors?.length > 0) {
-    aug.contributors = await findIdentities(aug.contributors);
+    aug.contributors = await findIdentities(
+      aug.contributors.map(wipePreviusIdentities),
+    );
     aug.akvaplanists = countAkvaplanists([...aug.authors, ...aug.contributors]);
   } else {
     aug.akvaplanists = countAkvaplanists(authors);
@@ -270,13 +294,16 @@ const insertPubFromCrossrefDoi = async (doi: string, add?: Partial<Pub>) => {
 };
 
 const insertPubFromDatacite = async (
-  doi: string,
-  _add?: Partial<Pub>,
+  _doi: string,
+  add?: Pub,
 ) => {
-  await console.warn(
-    "WARN",
-    `Cannot insert "${doi}": DataCite DOIs are not yet supported`,
-  );
+  if (!add) {
+    throw new RangeError(
+      `Cannot insert DataCite DOI without additional metadata`,
+    );
+  }
+  add.reg = "DataCite";
+  await insertPub(add);
 };
 
 export const findChangedTitles = async () => {

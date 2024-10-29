@@ -1,19 +1,75 @@
 // Convenience types, for official types, see:
 // https://github.com/BIBSYSDEV/NVA-Frontend/tree/develop/src/types
 
+export interface NvaPublication {
+  type: string | "Publication";
+  publicationContextUris: (URL | string)[];
+  "@context": URL | string;
+  id: string;
+  additionalIdentifiers: NvaIdentifier[];
+  associatedArtifacts?: (NvaFile | NvaLink)[];
+  contributorOrganizations: (URL | string)[];
+  createdDate: Date | string;
+  curatingInstitutions: (URL | string)[];
+  entityDescription: NvaEntityDescription;
+  fundings: NvaFunder[];
+  projects: NvaProject[];
+  handle?: string;
+  identifier: string;
+  importDetail: unknown[];
+  modelVersion: unknown;
+  modifiedDate: Date | string;
+  publishedDate: Date | string;
+  publisher: NvaOrganization;
+  resourceOwner: unknown;
+  status: string;
+  topLevelOrganizations: unknown;
+  filesStatus: unknown;
+}
+
 export interface NvaEntityDescription {
-  type: "EntityDescription";
-  abstract: string;
+  type: string | "EntityDescription";
+  abstract?: string;
   alternativeAbstracts: unknown;
   contributors: NvaContributor[];
   reference: NvaReference;
   language: string;
   mainTitle: string;
-  publicationDate: PublicationDate;
+  publicationDate: NvaPublicationDate;
 }
 
-export interface PublicationDate {
-  type: "PublicationDate";
+export interface NvaFunder {
+  type: string;
+  id: string;
+  identifier: string;
+  labels?: IntlString;
+  name?: IntlString;
+  "@context"?: NvaFunderContext;
+}
+
+export interface NvaProject {
+  type: string;
+  id: string;
+  name?: string;
+  title?: string;
+  startDate?: Date | string;
+  endDate?: Date | string;
+  coordinatingInstitution?: NvaOrganization;
+}
+
+export interface NvaFunderContext {
+  "@vocab": string;
+  id: string;
+  type: string;
+  labels: NvaContextLabels;
+}
+
+export interface NvaContextLabels {
+  "@id": string;
+  "@container": string;
+}
+export interface NvaPublicationDate {
+  type: string | "PublicationDate";
   year: string;
   month?: string;
   day?: string;
@@ -21,31 +77,6 @@ export interface PublicationDate {
 
 export interface NvaHitsGenerator {
   [Symbol.iterator](): Iterator<NvaPublication>;
-}
-
-export interface NvaPublication {
-  type: "Publication";
-  publicationContextUris: URL[];
-  "@context": URL;
-  id: string;
-  additionalIdentifiers: NvaIdentifier[];
-  associatedArtifacts: (NvaFile | NvaLink)[];
-  contributorOrganizations: URL[];
-  createdDate: Date;
-  curatingInstitutions: URL[];
-  entityDescription: NvaEntityDescription;
-  fundings: unknown;
-  handle: string;
-  identifier: string;
-  importDetail: unknown[];
-  modelVersion: unknown;
-  modifiedDate: Date;
-  publishedDate: Date;
-  publisher: Organization;
-  resourceOwner: unknown;
-  status: string;
-  topLevelOrganizations: unknown;
-  filesStatus: unknown;
 }
 
 interface NvaIdentifier {
@@ -58,27 +89,27 @@ export interface NvaSearchResults {
   id: string;
   totalHits: number;
   hits: NvaPublication[];
-  nextResults: URL;
-  nextSearchAfterResults: URL;
-  "@context": URL;
+  nextResults: URL | string;
+  nextSearchAfterResults: URL | string;
+  "@context": URL | string;
 }
 
 export interface AccessTokenResponse {
   access_token: string;
   expires_in: number;
-  token_type: "Bearer";
+  token_type: string | "Bearer";
 }
 
 export interface AccessTokenPayload {
-  "token_use": "access";
-  "scope": "string";
-  "auth_time": number;
-  "iss": string;
-  "exp": number;
-  "iat": number;
-  "version": number;
-  "jti": string;
-  "client_id": string;
+  token_use: "access";
+  scope: "string";
+  auth_time: number;
+  iss: string;
+  exp: number;
+  iat: number;
+  version: number;
+  jti: string;
+  client_id: string;
 }
 
 export interface AccessTokenObject extends AccessTokenResponse {
@@ -89,54 +120,54 @@ export interface AccessTokenObject extends AccessTokenResponse {
 }
 
 export interface NvaFile {
-  type: "PublishedFile" | "UnpublishableFile";
+  type: string | "PublishedFile" | "UnpublishableFile";
   administrativeAgreement: boolean;
   identifier: string;
-  license: License;
+  license: NvaLicense;
   mimeType: string;
   name: string;
   publishedDate: Date;
   publisherVersion: string;
-  rightsRetentionStrategy: RightsRetentionStrategy;
+  rightsRetentionStrategy: NvaRightsRetentionStrategy;
   size: number;
-  uploadDetails: UploadDetails;
+  uploadDetails: NvaUploadDetails;
   visibleForNonOwner: boolean;
   id: URL | string;
 }
 
 export interface NvaLink {
-  type: "AssociatedLink";
+  type: string | "AssociatedLink";
   id: URL | string;
 }
-interface License {
+interface NvaLicense {
   type: string;
   value: string;
   name: string;
   labels: IntlString;
 }
 
-interface RightsRetentionStrategy {
+interface NvaRightsRetentionStrategy {
   type: string;
   configuredType: string;
 }
 
-interface UploadDetails {
+interface NvaUploadDetails {
   type: string;
   uploadedBy: string;
   uploadedDate: Date;
 }
 
 export interface NvaContributor {
-  type: "Contributor";
-  affiliations: unknown[];
+  type: string | "Contributor";
+  affiliations?: unknown[];
   correspondingAuthor: boolean;
-  identity: Identity;
-  role: Role;
+  identity: NvaIdentity;
+  role: NvaRole;
   sequence: number;
 }
 
-interface Identity {
-  type: "Identity";
+interface NvaIdentity {
+  type: string | "Identity";
   name: string;
   verificationStatus: string;
 }
@@ -145,31 +176,62 @@ interface IntlString {
   [lang: string]: string;
 }
 
-interface Organization {
-  "@context": string;
-  type: "Organization";
-  id: URL;
-  labels: IntlString;
-  acronym: string;
-  country: string;
-  countryCode: string;
+interface NvaOrganization {
+  "@context"?: string;
+  type: string | "Organization";
+  id: URL | string;
+  labels?: IntlString;
+  acronym?: string;
+  country?: string;
+  countryCode?: string;
 
-  partOf: Organization[];
-  hasPart: Organization[];
+  partOf?: NvaOrganization[];
+  hasPart?: NvaOrganization[];
 }
 
 export interface NvaPublicationContext {
-  id: string;
+  id?: string;
   type: string | string[];
-  identifier: string;
+  identifier?: string;
+  name?: string;
+  onlineIssn?: string;
+  sameAs?: string;
+  scientificValue?: string;
+  year?: string;
+  series?: NvaChannel;
+  disseminationChannel?: string;
+  entityDescription?: NvaEntityDescription;
+  publisher?: NvaPublisher;
+  agent?: NvaAgent;
+  label?: string;
+  place?: unknown;
+  time: NvaTime;
+}
+
+interface NvaPublisher {
   name: string;
-  onlineIssn: string;
-  sameAs: string;
-  scientificValue: string;
-  year: string;
-  series: NvaChannel;
-  disseminationChannel: string;
-  entityDescription: NvaEntityDescription;
+  id: string;
+}
+
+export interface NvaTime {
+  from: string;
+  to?: string;
+}
+
+interface NvaAgent {
+  name: string;
+  type: string;
+}
+
+export interface NvaPublicationInstance {
+  pages?: NvaPages;
+  type: string;
+}
+
+export interface NvaPages {
+  end?: string;
+  type: string;
+  begin?: string;
 }
 
 export interface NvaChannel {
@@ -184,11 +246,12 @@ export interface NvaChannel {
 }
 
 export interface NvaReference {
-  type: string;
-  doi: string;
+  type: string | "Reference";
+  doi?: string;
+  publicationInstance: NvaPublicationInstance;
   publicationContext: NvaPublicationContext;
 }
 
-interface Role {
+interface NvaRole {
   type: string;
 }

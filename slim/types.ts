@@ -12,7 +12,9 @@ export interface SlimPublication {
 }
 
 export interface Author {
-  family: string;
-  given: string;
+  family?: string;
+  given?: string;
+
+  name?: string;
   first?: boolean;
 }

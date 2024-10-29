@@ -24,7 +24,9 @@ export const authorOrContributorSchema = object({
   identity: object({
     id: string(),
     ...names,
-    prior: boolean(),
+    prior: boolean().optional(),
+    openalex: string().nullable().optional(),
+    orcid: string().nullable().optional(),
   }).optional(),
   position: number().optional(),
 });
@@ -34,6 +36,10 @@ export const AkvaplanistCount = object({
   current: number(),
   prior: number(),
   when: date(),
+});
+
+const projectSchema = object({
+  cristin: number().optional(),
 });
 
 export const pubSchema = object({
@@ -55,6 +61,8 @@ export const pubSchema = object({
   created: date().required().default(new Date()),
   modified: date().required().default(new Date()),
   akvaplanists: AkvaplanistCount.optional(),
+  parent: string().optional(),
+  projects: array().optional().of(projectSchema),
 });
 
 export const validatePub = async (value: unknown) => {

@@ -20,7 +20,7 @@ const expected = {
   ],
   container: "Reviews in Aquaculture",
   published: "2024-07-30",
-  type: "journal-article",
+  type: "AcademicArticle",
   reg: "Crossref",
   license: "cc-by",
   created: new Date("2024-07-31T02:38:53Z"),

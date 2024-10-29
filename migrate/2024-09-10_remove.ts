@@ -76,6 +76,8 @@ const deletePubIds: string[] = [
   "http://hdl.handle.net/11250/2467041",
   "https://hdl.handle.net/11250/2647209",
   "https://api.test.nva.aws.unit.no/publication/0190b80e2d3e-8f7fb51c-669a-4977-bda5-0f74aa52b701",
+  "https://api.test.nva.aws.unit.no/publication/01907a68c650-bf7fffcc-942b-4ba4-b14b-af1b79dc675a",
+
   //duplicate of https://doi.org/10.1016/j.ecss.2005.12.006:
   "https://api.test.nva.aws.unit.no/publication/01907a924743-fc69947b-6562-4ec2-8152-5263abe6e2ef",
   // Not our Sondre Pedersen:
@@ -85,7 +87,8 @@ const deletePubIds: string[] = [
   "https://api.test.nva.aws.unit.no/publication/0190b613eee8-99ba0dc9-386d-4cbd-8a09-1b7990d05458",
   "https://api.test.nva.aws.unit.no/publication/0190a19e285a-849e5d2f-e1cb-42a4-9294-96f1b2738979",
   "https://api.test.nva.aws.unit.no/publication/0190b69139e3-22b1874c-874f-4c9c-a974-527054e181e2",
-  "https://api.test.nva.aws.unit.no/publication/0190b69139e3-22b1874c-874f-4c9c-a974-527054e181e2", // master om lakselus => same as https://munin.uit.no/bitstream/handle/10037/22609/thesis.pdf?sequence=2&isAllowed=y
+  "https://api.test.nva.aws.unit.no/publication/0192904b36f2-bfd4ddbf-dd72-4d9c-8fb5-59fafcbc7079",
+  "https://api.test.nva.aws.unit.no/publication/0190a1977a28-d200d363-587c-49b9-8a16-78fab4d632c3", // master om lakselus => same as https://munin.uit.no/bitstream/handle/10037/22609/thesis.pdf?sequence=2&isAllowed=y
   "https://hdl.handle.net/10037/22609",
 
   // Incomplete/test metadata for: Kunnskapsgrunnlag for nye arter i oppdrett – Del 2
@@ -103,25 +106,47 @@ const deletePubIds: string[] = [
   // NIVA
   "https://hdl.handle.net/11250/2739211",
 
-  //Not our Mina Hansen:
+  // Not our Mina Hansen:
   "https://api.test.nva.aws.unit.no/publication/01909971201b-01393776-c758-4d56-bb0a-e6688eced625",
   "https://api.test.nva.aws.unit.no/publication/0190b73700f1-459b0622-4471-4e44-86a6-c9a8ea9b3da2",
   "https://api.test.nva.aws.unit.no/publication/019097afeb68-c0f5342a-ad72-437f-9d99-21e34eacc2cf",
   "https://hdl.handle.net/11250/218191",
+
+  // Not our Anton
+  "https://doi.org/10.1155/2015/317859",
+  "https://api.test.nva.aws.unit.no/publication/01907a6896d1-9fd1ab45-ca7b-477d-aa57-740be607377a",
+  "https://doi.org/10.1186/1472-6963-6-41",
+
+  // Just a test record:
+  "https://api.test.nva.aws.unit.no/publication/0191bc3d8472-532bd7eb-0e98-45e0-8c1c-f985c4319a95",
+
+  // Not our Qin Zhou
+  "https://doi.org/10.1126/science.1242642",
+
+  // Not our Merete K
+  "https://doi.org/10.7717/peerj.505",
+  "https://api.test.nva.aws.unit.no/publication/01907aa7fafe-c622b9a2-9b24-45ae-87c6-ec4ac3e505ca",
+  "https://api.test.nva.aws.unit.no/publication/01907aa2621f-f0516f05-57dd-4dc7-8c2a-3d92fc04f5f0",
+
+  // (Not our Kai)
+  "https://api.test.nva.aws.unit.no/publication/0190a3b1fbf8-3183cb5e-d4b5-445a-9358-e797816237d1",
 ];
 
 // Remove, but also put id into KV ["reject"] in order to avoid re-creating the unwarranted pub
 export const removeUnwarranted = async () => {
+  let i = 0;
   for (const doi of deleteDoiNames) {
     const id = doiUrlString(doi);
     await deletePub(id, { by: true });
     await kv.delete(["crossref", doi]);
     await kv.set(["reject", id], "removeUnwarranted");
+    console.warn(i++, id);
   }
 
   for (const id of deletePubIds) {
     await deletePub(id, { by: true });
     await kv.set(["reject", id], "removeUnwarranted");
+    console.warn(i++, id);
   }
 };
 
