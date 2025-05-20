@@ -2,7 +2,7 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@1",
     "@std/encoding": "jsr:@std/encoding@1",
-    "@std/http": "jsr:@std/http@1",
+    "@std/http": "jsr:@std/http@1.0.8",
     "@std/streams": "jsr:@std/streams@1",
     "@std/text": "jsr:@std/text@1",
     "yup": "npm:yup@1.4.0"
@@ -14,7 +14,12 @@
   "tasks": {
     "check": "deno fmt && deno lint && deno check '**/*.ts'",
     "dev": "./server.ts",
-    "refresh": "./kv/refresh.ts",
+    "refresh": "./refresh.ts",
+    "refresh_crossref": "./crossref/refresh_crossref.ts",
+    "snapshot": "./kv/snapshot.ts",
+    "pub": "./pub/pub.ts",
+    "pub_from_nva": "deno run --env-file --allow-env --allow-net pub/pub_from_nva.ts",
+    "nva_publication": "./nva/api.ts",
     "nva_auth_token": "./nva/auth_access_token_kv.ts",
     "test": "DENO_KV_PATH=':memory:' deno test --env-file --allow-env --allow-net=api.test.nva.aws.unit.no:443,akvaplanists.deno.dev"
   }
