@@ -1,0 +1,360 @@
+[
+  [
+    "AMAP",
+    {
+      "name": {
+        "en": "Arctic Monitoring and Assessment Programme",
+        "nb": "Arctic Monitoring and Assessment Programme"
+      }
+    }
+  ],
+  [
+    "ARTSBANK",
+    {
+      "name": {
+        "en": "Norwegian Biodiversity Information Centre",
+        "nb": "Artsdatabanken"
+      }
+    }
+  ],
+  [
+    "CONOCOPHILIPS",
+    {
+      "name": {
+        "en": "Conoco Phillips",
+        "nb": "Conoco Phillips",
+        "nn": "Conoco Phillips"
+      }
+    }
+  ],
+  [
+    "EEANORWAYGRANTS",
+    {
+      "name": {
+        "en": "The EEA and Norway Grants Fund for Regional Cooperation",
+        "nb": "The EEA and Norway Grants Fund for Regional Cooperation",
+        "nn": "The EEA and Norway Grants Fund for Regional Cooperation"
+      }
+    }
+  ],
+  [
+    "EI",
+    {
+      "name": {
+        "en": "Own institution",
+        "nb": "Egen institusjon"
+      }
+    }
+  ],
+  [
+    "ENERGINORGE",
+    {
+      "name": {
+        "en": "Energy Norway",
+        "nb": "Energi Norge"
+      }
+    }
+  ],
+  [
+    "EQUINOR",
+    {
+      "name": {
+        "en": "Equinor",
+        "nb": "Equinor",
+        "nn": "Equinor"
+      }
+    }
+  ],
+  [
+    "ERC",
+    {
+      "name": {
+        "en": "ERC-European Research Council",
+        "nb": "ERC-European Research Council",
+        "nn": "ERC-European Research Council"
+      }
+    }
+  ],
+  [
+    "EU",
+    {
+      "name": {
+        "en": "EU",
+        "nb": "EU"
+      }
+    }
+  ],
+  [
+    "FHF",
+    {
+      "name": {
+        "en": "The Norwegian Seafood Research Fund",
+        "nb": "Fiskeri- og havbruksnæringens forskningsfinansiering"
+      }
+    }
+  ],
+  [
+    "FRAM",
+    {
+      "name": {
+        "en": "The Fram Centre",
+        "nb": "Framsenteret"
+      }
+    }
+  ],
+  [
+    "FULBRIGHT",
+    {
+      "name": {
+        "en": "Fulbright",
+        "nb": "Fulbright"
+      }
+    }
+  ],
+  [
+    "HAVFORSK",
+    {
+      "name": {
+        "en": "Institute of Marine Research",
+        "nb": "Havforskningsinstituttet"
+      }
+    }
+  ],
+  [
+    "LUNDIN",
+    {
+      "name": {
+        "en": "Lundin Norway",
+        "nb": "Lundin Norway",
+        "nn": "Lundin Norway"
+      }
+    }
+  ],
+  [
+    "MI",
+    {
+      "name": {
+        "en": "The Norwegian Meteorological Institute",
+        "nb": "Meteorologisk institutt"
+      }
+    }
+  ],
+  [
+    "MILJØDIR",
+    {
+      "name": {
+        "en": "Norwegian Environment Agency",
+        "nb": "Miljødirektoratet"
+      }
+    }
+  ],
+  [
+    "NASA",
+    {
+      "name": {
+        "en": "NASA National Aeronautics and Space Administration",
+        "nb": "NASA National Aeronautics and Space Administration"
+      }
+    }
+  ],
+  [
+    "NATSCIFOUND",
+    {
+      "name": {
+        "en": "National Science Foundation",
+        "nb": "National Science Foundation"
+      }
+    }
+  ],
+  [
+    "NFR",
+    {
+      "name": {
+        "en": "Research Council of Norway (RCN)",
+        "nb": "Norges forskningsråd"
+      }
+    }
+  ],
+  [
+    "NILU",
+    {
+      "name": {
+        "en": "NILU",
+        "nb": "NILU",
+        "nn": "NILU"
+      }
+    }
+  ],
+  [
+    "NIVA",
+    {
+      "name": {
+        "en": "Norwegian Institute of Water Research",
+        "nb": "Norsk institutt for vannforskning"
+      }
+    }
+  ],
+  [
+    "NM",
+    {
+      "name": {
+        "en": "The Nordic Council of Ministers",
+        "nb": "Nordisk ministerråd"
+      }
+    }
+  ],
+  [
+    "NOFIMA",
+    {
+      "name": {
+        "en": "Nofima AS",
+        "nb": "Nofima AS"
+      }
+    }
+  ],
+  [
+    "NORDFORSK",
+    {
+      "name": {
+        "en": "Nordforsk",
+        "nb": "Nordforsk"
+      }
+    }
+  ],
+  [
+    "NTNU",
+    {
+      "name": {
+        "en": "Norwegian University of Science and Technology",
+        "nb": "Norges teknisk-naturvitenskapelige universitet"
+      }
+    }
+  ],
+  [
+    "OLJEGASS",
+    {
+      "name": {
+        "en": "The Norwegian Oil and Gas Association",
+        "nb": "Norsk olje og gass"
+      }
+    }
+  ],
+  [
+    "RFF-NORD-NORGE",
+    {
+      "name": {
+        "en": "Regional research fund Nord-Norge",
+        "nb": "Regionale forskningsfond Nord-Norge"
+      }
+    }
+  ],
+  [
+    "SIGMA2",
+    {
+      "name": {
+        "en": "Sigma2",
+        "nb": "Sigma2",
+        "nn": "Sigma2"
+      }
+    }
+  ],
+  [
+    "SINTEF",
+    {
+      "name": {
+        "en": "SINTEF AS",
+        "nb": "SINTEF AS"
+      }
+    }
+  ],
+  [
+    "STATSKOG",
+    {
+      "name": {
+        "en": "SF - the Norwegian state-owned land and forest enterprise",
+        "nb": "Statsskog SF    Statsskog"
+      }
+    }
+  ],
+  [
+    "SVALBARDMILJØ",
+    {
+      "name": {
+        "en": "Svalbards Environmental Protection",
+        "nb": "Svalbards miljøvernfond"
+      }
+    }
+  ],
+  [
+    "TFS",
+    {
+      "name": {
+        "en": "Tromsø Research Foundation",
+        "nb": "Tromsø forskningsstiftelse"
+      }
+    }
+  ],
+  [
+    "TROMS",
+    {
+      "name": {
+        "en": "Troms county",
+        "nb": "Troms Fylkeskommune"
+      }
+    }
+  ],
+  [
+    "TROMSFINNMARKCOUNTY",
+    {
+      "name": {
+        "en": "Troms og Finnmark County",
+        "nb": "Troms og Finnmark fylkeskommune"
+      }
+    }
+  ],
+  [
+    "UIA",
+    {
+      "name": {
+        "en": "University of Agder",
+        "nb": "Universitetet i Agder"
+      }
+    }
+  ],
+  [
+    "UIB",
+    {
+      "name": {
+        "en": "University of Bergen",
+        "nb": "Universitetet i Bergen"
+      }
+    }
+  ],
+  [
+    "UIT",
+    {
+      "name": {
+        "en": "UiT The Arctic University of Norway",
+        "nb": "UiT Norges arktiske universitet"
+      }
+    }
+  ],
+  [
+    "VENERGI",
+    {
+      "name": {
+        "en": "Vår Energi",
+        "nb": "Vår Energi"
+      }
+    }
+  ],
+  [
+    "VETENSKAPSRÅDET",
+    {
+      "name": {
+        "en": "Swedish Research Council",
+        "nb": "Vetenskapsrådet"
+      }
+    }
+  ]
+]
