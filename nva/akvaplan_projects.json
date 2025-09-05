@@ -1,0 +1,790 @@
+[
+  [
+    459944,
+    {
+      "title": "Centre for Arctic Gas Hydrate, Environment and Climate (CAGE)",
+      "startDate": "2013-03-01T00:00:00Z",
+      "endDate": "2023-02-28T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.32.13.90",
+        "labels": {
+          "nb": "Centre for Arctic Gas Hydrate, Environment and Climate"
+        }
+      }
+    }
+  ],
+  [
+    520677,
+    {
+      "title": "ForBio - The Research School in Biosystematics",
+      "startDate": "2011-01-01T00:00:00Z",
+      "endDate": "2020-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/185.28.0.0",
+        "labels": {
+          "en": "Natural History Museum",
+          "nb": "Naturhistorisk museum"
+        }
+      }
+    }
+  ],
+  [
+    574050,
+    {
+      "title": "HYPNO (Hydrozoan pelagic diversity in Norway)",
+      "startDate": "2015-04-01T00:00:00Z",
+      "endDate": "2018-09-30T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/184.34.40.0",
+        "labels": {
+          "en": "Department of Natural History",
+          "nb": "Avdeling for naturhistorie"
+        }
+      }
+    }
+  ],
+  [
+    358489,
+    {
+      "title": "EWMA Environmental Waste Management (Main project)",
+      "startDate": "2009-08-18T00:00:00Z",
+      "endDate": "2017-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.34.2.0",
+        "labels": {
+          "nb": "Fakultetsadministrasjon BFE-fak"
+        }
+      }
+    }
+  ],
+  [
+    2497245,
+    {
+      "title": "Polar cod, lipid metabolism and disruption by PAHs (polarisation)",
+      "startDate": "2012-01-01T00:00:00Z",
+      "endDate": "2015-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.34.0.0",
+        "labels": {
+          "en": "Faculty of Biosciences, Fisheries and Economics",
+          "nb": "Fakultet for biovitenskap, fiskeri og økonomi"
+        }
+      }
+    }
+  ],
+  [
+    2056945,
+    {
+      "title": "GoJelly! A gelatious solution to plastic pollution",
+      "startDate": "2018-01-01T00:00:00Z",
+      "endDate": "2021-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/10100086.0.0.0",
+        "labels": {
+          "en": "University of Southern Denmark",
+          "nb": "Syddansk Universitet"
+        }
+      }
+    }
+  ],
+  [
+    446702,
+    {
+      "title": "Norwegian barcode of life network (NorBOL)",
+      "startDate": "2014-01-01T00:00:00Z",
+      "endDate": "2024-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/194.31.0.0",
+        "labels": {
+          "en": "NTNU University Museum",
+          "nb": "NTNU Vitenskapsmuseet"
+        }
+      }
+    }
+  ],
+  [
+    536386,
+    {
+      "title": "Ctenophores – native aliens in Norwegian waters",
+      "startDate": "2016-07-01T00:00:00Z",
+      "endDate": "2018-03-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.0.0.0",
+        "labels": {
+          "en": "UiT The Arctic University of Norway",
+          "nb": "UiT Norges arktiske universitet"
+        }
+      }
+    }
+  ],
+  [
+    2497249,
+    {
+      "title": "Combined effects of Petroleum and the Environment in bivalves from the Norwegian-Russian Arctic",
+      "startDate": "2013-01-01T00:00:00Z",
+      "endDate": "2015-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.34.0.0",
+        "labels": {
+          "en": "Faculty of Biosciences, Fisheries and Economics",
+          "nb": "Fakultet for biovitenskap, fiskeri og økonomi"
+        }
+      }
+    }
+  ],
+  [
+    635409,
+    {
+      "title": "Ridges - Safe Havens for ice-associated Flora and Fauna in a Seasonally ice-covered Arctic Ocean (HAVOC)",
+      "startDate": "2019-01-11T00:00:00Z",
+      "endDate": "2026-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7466.0.0.0",
+        "labels": {
+          "en": "Norwegian Polar Institute",
+          "nb": "Norsk Polarinstitutt"
+        }
+      }
+    }
+  ],
+  [
+    2495949,
+    {
+      "title": "Effects of parental exposure to petroleum on fertilization success and embryo development in Atlantic cod (PARENTox)",
+      "startDate": "2020-01-01T00:00:00Z",
+      "endDate": "2021-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.34.0.0",
+        "labels": {
+          "en": "Faculty of Biosciences, Fisheries and Economics",
+          "nb": "Fakultet for biovitenskap, fiskeri og økonomi"
+        }
+      }
+    }
+  ],
+  [
+    2559966,
+    {
+      "title": "Light as a Cue for Life in Arctic and Northern Seas",
+      "startDate": "2021-08-01T00:00:00Z",
+      "endDate": "2024-07-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/194.0.0.0",
+        "labels": {
+          "en": "Norwegian University of Science and Technology",
+          "nb": "Norges teknisk-naturvitenskapelige universitet",
+          "nn": "Noregs teknisk-naturvitskaplege universitet"
+        }
+      }
+    }
+  ],
+  [
+    433189,
+    {
+      "title": "Investigating coastal ecosystem structure and dynamics using Ecopath/Ecosim ecosystem models and stable isotope data",
+      "startDate": "2009-06-01T00:00:00Z",
+      "endDate": "2013-06-01T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.34.11.0",
+        "labels": {
+          "en": "Department of Arctic and Marine Biology",
+          "nb": "Institutt for arktisk og marin biologi"
+        }
+      }
+    }
+  ],
+  [
+    2709856,
+    {
+      "title": "Biosikkerhet i RAS (BRAS)",
+      "startDate": "2023-01-17T00:00:00Z",
+      "endDate": "2025-12-17T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7464.0.0.0",
+        "labels": {
+          "en": "Norwegian Institute of Water Research",
+          "nb": "Norsk institutt for vannforskning",
+          "nn": "Norsk institutt for vannforsking"
+        }
+      }
+    }
+  ],
+  [
+    531973,
+    {
+      "title": "The Nansen Legacy",
+      "startDate": "2018-01-30T00:00:00Z",
+      "endDate": "2024-07-01T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.34.0.0",
+        "labels": {
+          "en": "Faculty of Biosciences, Fisheries and Economics",
+          "nb": "Fakultet for biovitenskap, fiskeri og økonomi"
+        }
+      }
+    }
+  ],
+  [
+    2516828,
+    {
+      "title": "MicroLEACH - Microplastics: Long-term Effects of plastics and Additive Chemicals on marine organisms",
+      "startDate": "2019-01-01T00:00:00Z",
+      "endDate": "2024-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7464.0.0.0",
+        "labels": {
+          "en": "Norwegian Institute of Water Research",
+          "nb": "Norsk institutt for vannforskning",
+          "nn": "Norsk institutt for vannforsking"
+        }
+      }
+    }
+  ],
+  [
+    2683071,
+    {
+      "title": "Arctic Ocean mixing processes and vertical fluxes of energy and matter",
+      "startDate": "2019-01-01T00:00:00Z",
+      "endDate": "2023-03-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/184.12.44.0",
+        "labels": {
+          "en": "Geophysical Institute",
+          "nb": "Geofysisk institutt"
+        }
+      }
+    }
+  ],
+  [
+    2517155,
+    {
+      "title": "ZoopSeis: Effects of seismic sound on zooplankton",
+      "startDate": "2020-04-01T00:00:00Z",
+      "endDate": "2023-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7431.0.0.0",
+        "labels": {
+          "en": "Institute of Marine Research",
+          "nb": "Havforskningsinstituttet"
+        }
+      }
+    }
+  ],
+  [
+    2551323,
+    {
+      "title": "Sustainable Development of the Arctic Ocean (SUDARCO)",
+      "startDate": "2022-04-04T00:00:00Z",
+      "endDate": "2026-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7466.0.0.0",
+        "labels": {
+          "en": "Norwegian Polar Institute",
+          "nb": "Norsk Polarinstitutt"
+        }
+      }
+    }
+  ],
+  [
+    576385,
+    {
+      "title": "SeaPatches - Sustainable harvesting of a patchy resource: aggregation mechanisms and implications for stock size estimates",
+      "startDate": "2017-04-01T00:00:00Z",
+      "endDate": "2020-03-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.0.0.0",
+        "labels": {
+          "en": "UiT The Arctic University of Norway",
+          "nb": "UiT Norges arktiske universitet"
+        }
+      }
+    }
+  ],
+  [
+    549447,
+    {
+      "title": "BARCUT: Barents Sea Drill Cuttings Research initiative",
+      "startDate": "2013-06-01T00:00:00Z",
+      "endDate": "2019-05-30T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.32.0.0",
+        "labels": {
+          "en": "Faculty of  Science and Technology",
+          "nb": "Fakultet for naturvitenskap og teknologi"
+        }
+      }
+    }
+  ],
+  [
+    2497253,
+    {
+      "title": "Sensitivity of polar cod early life stages to a changing Arctic: A study of the impact of petroleum and elevated temperature (Sens2change)",
+      "startDate": "2018-01-01T00:00:00Z",
+      "endDate": "2018-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.34.0.0",
+        "labels": {
+          "en": "Faculty of Biosciences, Fisheries and Economics",
+          "nb": "Fakultet for biovitenskap, fiskeri og økonomi"
+        }
+      }
+    }
+  ],
+  [
+    423190,
+    {
+      "title": "Predicting effects of climate change on Svalbard reindeer population dynamics: a mechanistic approach",
+      "startDate": "2013-10-01T00:00:00Z",
+      "endDate": "2015-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/194.0.0.0",
+        "labels": {
+          "en": "Norwegian University of Science and Technology",
+          "nb": "Norges teknisk-naturvitenskapelige universitet",
+          "nn": "Noregs teknisk-naturvitskaplege universitet"
+        }
+      }
+    }
+  ],
+  [
+    423211,
+    {
+      "title": "PREDICTING EFFECTS OF CLIMATE CHANGE ON SVALBARD REINDEER POPULATION DYNAMICS: A MECHANISTIC APPROACH",
+      "startDate": "2012-02-01T00:00:00Z",
+      "endDate": "2015-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/194.66.10.0",
+        "labels": {
+          "en": "Department of Biology",
+          "nb": "Institutt for biologi"
+        }
+      }
+    }
+  ],
+  [
+    2545183,
+    {
+      "title": "Deep Impact - The impact of artificial light on arctic pelagic ecosystems during the polar night",
+      "startDate": "2019-08-01T00:00:00Z",
+      "endDate": "2025-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.34.11.0",
+        "labels": {
+          "en": "Department of Arctic and Marine Biology",
+          "nb": "Institutt for arktisk og marin biologi"
+        }
+      }
+    }
+  ],
+  [
+    2041683,
+    {
+      "title": "NorAmph2 - Norske Marine Lysianassoidea",
+      "startDate": "2019-01-01T00:00:00Z",
+      "endDate": "2023-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/184.34.40.0",
+        "labels": {
+          "en": "Department of Natural History",
+          "nb": "Avdeling for naturhistorie"
+        }
+      }
+    }
+  ],
+  [
+    483771,
+    {
+      "title": "COAT - Climate ecological Observatory for Arctic Tundra",
+      "startDate": "2015-01-01T00:00:00Z",
+      "endDate": "2025-01-01T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.0.0.0",
+        "labels": {
+          "en": "UiT The Arctic University of Norway",
+          "nb": "UiT Norges arktiske universitet"
+        }
+      }
+    }
+  ],
+  [
+    2703192,
+    {
+      "title": "Effekt og velferd ved bruk av rensefisk og luseskjørt",
+      "startDate": "2020-07-02T00:00:00Z",
+      "endDate": "2022-09-29T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/6064.0.0.0",
+        "labels": {
+          "en": "Akvaplan-niva AS",
+          "nb": "Akvaplan-niva AS"
+        }
+      }
+    }
+  ],
+  [
+    2703197,
+    {
+      "title": "Årsaker til dødelighet og tap av rensefisk (DOKUMENTAR)",
+      "startDate": "2021-04-18T00:00:00Z",
+      "endDate": "2022-10-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/6064.0.0.0",
+        "labels": {
+          "en": "Akvaplan-niva AS",
+          "nb": "Akvaplan-niva AS"
+        }
+      }
+    }
+  ],
+  [
+    2558253,
+    {
+      "title": "Sustainability Management Research Group",
+      "startDate": "2022-01-01T00:00:00Z",
+      "endDate": "2028-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/222.0.0.0",
+        "labels": {
+          "en": "University of South-Eastern Norway",
+          "nb": "Universitetet i Sørøst-Norge",
+          "nn": "Universitetet i Søraust-Noreg"
+        }
+      }
+    }
+  ],
+  [
+    666669,
+    {
+      "title": "Collaborative Studies of Two Resource Ecosystems in Shelf, Slope and Oceanic Regions of the Norwegian and South-China Seas",
+      "startDate": "2019-01-01T00:00:00Z",
+      "endDate": "2022-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/186.0.0.0",
+        "labels": {
+          "en": "UiT The Arctic University of Norway",
+          "nb": "UiT Norges arktiske universitet"
+        }
+      }
+    }
+  ],
+  [
+    2497164,
+    {
+      "title": "CRIMAC: Centre for research  based  innovation in marine  acoustic abundance estimation and backscatter classification",
+      "startDate": "2020-12-01T00:00:00Z",
+      "endDate": "2027-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7431.0.0.0",
+        "labels": {
+          "en": "Institute of Marine Research",
+          "nb": "Havforskningsinstituttet"
+        }
+      }
+    }
+  ],
+  [
+    2503693,
+    {
+      "title": "SFI BLUES - Floating structures for the next generation ocean industries",
+      "startDate": "2020-09-01T00:00:00Z",
+      "endDate": "2028-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7566.0.0.0",
+        "labels": {
+          "en": "SINTEF Ocean",
+          "nb": "SINTEF Ocean"
+        }
+      }
+    }
+  ],
+  [
+    2524794,
+    {
+      "title": "Polar Front ecosystem studies using novel autonomous technologies: Knowledge for environmental management and assessing ecological risk",
+      "startDate": "2021-11-01T00:00:00Z",
+      "endDate": "2024-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/6064.0.0.0",
+        "labels": {
+          "en": "Akvaplan-niva AS",
+          "nb": "Akvaplan-niva AS"
+        }
+      }
+    }
+  ],
+  [
+    2709830,
+    {
+      "title": "Forskning på vann (Aquahit)",
+      "startDate": "2023-03-13T00:00:00Z",
+      "endDate": "2025-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/222.58.1.0",
+        "labels": {
+          "en": "Department of Natural Sciences and Environmental Health",
+          "nb": "Institutt for natur, helse og miljø"
+        }
+      }
+    }
+  ],
+  [
+    674684,
+    {
+      "title": "Tipping Points in Antarctic Climate Components (TiPACCs)",
+      "startDate": "2019-08-01T00:00:00Z",
+      "endDate": "2024-01-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/2057.0.0.0",
+        "labels": {
+          "en": "NORCE Norwegian Research Centre AS",
+          "nb": "NORCE Norwegian Research Centre AS"
+        }
+      }
+    }
+  ],
+  [
+    2041457,
+    {
+      "title": "Southeren Ocean Carbon and Heat Impact on Climate (SO-CHIC)",
+      "startDate": "2019-11-01T00:00:00Z",
+      "endDate": "2024-10-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/11720032.0.0.0",
+        "labels": {
+          "en": "Sorbonne University",
+          "nb": "Sorbonne Université"
+        }
+      }
+    }
+  ],
+  [
+    2520086,
+    {
+      "title": "SØRIS",
+      "startDate": "2021-02-01T00:00:00Z",
+      "endDate": "2022-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/2057.3.0.0",
+        "labels": {
+          "en": "NORCE Climate & Environment",
+          "nb": "NORCE Klima og miljø"
+        }
+      }
+    }
+  ],
+  [
+    2558362,
+    {
+      "title": "Southern Ocean phytoplankton community characteristics, primary production, CO2 flux and the effects of climate change (SOPHY-CO2)",
+      "startDate": "2018-12-31T00:00:00Z",
+      "endDate": "2023-06-30T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7466.0.0.0",
+        "labels": {
+          "en": "Norwegian Polar Institute",
+          "nb": "Norsk Polarinstitutt"
+        }
+      }
+    }
+  ],
+  [
+    684913,
+    {
+      "title": "The fundamental role of mesopelagic fishes for the structure and change of Northeast Atlantic marine ecosystems",
+      "startDate": "2019-04-01T00:00:00Z",
+      "endDate": "2024-09-30T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/184.0.0.0",
+        "labels": {
+          "en": "University of Bergen",
+          "nb": "Universitetet i Bergen"
+        }
+      }
+    }
+  ],
+  [
+    412071,
+    {
+      "title": "Fjord to ocean connections",
+      "startDate": "2013-01-01T00:00:00Z",
+      "endDate": "2017-06-30T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/204.30.0.0",
+        "labels": {
+          "en": "Faculty of Biosciences and Aquaculture",
+          "nb": "Fakultet for biovitenskap og akvakultur"
+        }
+      }
+    }
+  ],
+  [
+    520872,
+    {
+      "title": "Extending the instrumental reCord of NortH Atlantic Ocean climate variability  (ECHO)",
+      "startDate": "2015-01-01T00:00:00Z",
+      "endDate": "2019-09-30T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/2057.3.0.0",
+        "labels": {
+          "en": "NORCE Climate & Environment",
+          "nb": "NORCE Klima og miljø"
+        }
+      }
+    }
+  ],
+  [
+    2044702,
+    {
+      "title": "AnDeepNor - Annelids from the deep Norwegian waters",
+      "startDate": "2018-10-01T00:00:00Z",
+      "endDate": "2021-09-30T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/184.0.0.0",
+        "labels": {
+          "en": "University of Bergen",
+          "nb": "Universitetet i Bergen"
+        }
+      }
+    }
+  ],
+  [
+    536331,
+    {
+      "title": "EXPOSED Aquaculture Operations",
+      "startDate": "2015-04-01T00:00:00Z",
+      "endDate": "2023-04-01T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7566.0.0.0",
+        "labels": {
+          "en": "SINTEF Ocean",
+          "nb": "SINTEF Ocean"
+        }
+      }
+    }
+  ],
+  [
+    536879,
+    {
+      "title": "Krill-dominated Ecosystem Dynamics in the Scotia Sea",
+      "startDate": "2012-01-01T00:00:00Z",
+      "endDate": "2017-03-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7431.0.0.0",
+        "labels": {
+          "en": "Institute of Marine Research",
+          "nb": "Havforskningsinstituttet"
+        }
+      }
+    }
+  ],
+  [
+    517825,
+    {
+      "title": "PolyNOR - Diversitet av flerbørstemark i Norskehavet, fra kyst til dyphav",
+      "startDate": "2013-02-01T00:00:00Z",
+      "endDate": "2016-03-01T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/194.31.0.0",
+        "labels": {
+          "en": "NTNU University Museum",
+          "nb": "NTNU Vitenskapsmuseet"
+        }
+      }
+    }
+  ],
+  [
+    2568769,
+    {
+      "title": "Centre for Coastal Research",
+      "startDate": "2019-01-01T00:00:00Z",
+      "endDate": "2027-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/201.0.0.0",
+        "labels": {
+          "en": "University of Agder",
+          "nb": "Universitetet i Agder"
+        }
+      }
+    }
+  ],
+  [
+    621867,
+    {
+      "title": "A-TWAIN (Long-term variability and trends in the Atlantic Water inflow region)",
+      "startDate": "2012-10-31T00:00:00Z",
+      "endDate": "2027-12-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7466.0.0.0",
+        "labels": {
+          "en": "Norwegian Polar Institute",
+          "nb": "Norsk Polarinstitutt"
+        }
+      }
+    }
+  ],
+  [
+    2572443,
+    {
+      "title": "SeaBee - Norwegian Infrastructure for drone-based research, mapping and monitoring in the coastal zone",
+      "startDate": "2020-04-01T00:00:00Z",
+      "endDate": "2025-03-31T00:00:00Z",
+      "coordinatingInstitution": {
+        "type": "Organization",
+        "id": "https://api.nva.unit.no/cristin/organization/7464.0.0.0",
+        "labels": {
+          "en": "Norwegian Institute of Water Research",
+          "nb": "Norsk institutt for vannforskning",
+          "nn": "Norsk institutt for vannforsking"
+        }
+      }
+    }
+  ]
+]

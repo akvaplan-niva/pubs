@@ -14,8 +14,8 @@ export const identityObject = object({
 });
 
 const names = {
-  family: string().optional(),
-  given: string().optional(),
+  family: string(),
+  given: string(),
   name: string().optional(),
 };
 

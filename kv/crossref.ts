@@ -1,5 +1,6 @@
 import { CrossrefWork } from "../crossref/types.ts";
 import { getCrossrefWorkFromApi } from "../crossref/work.ts";
+import { doiName } from "../doi/url.ts";
 import { kv } from "./kv.ts";
 
 export const crossrefkey = (doi: string) =>
@@ -41,13 +42,13 @@ export const getOrLookupCrossrefWork = async (
  * Store Crossref work in KV (without references)
  */
 export const setCrossrefWork = async (work: CrossrefWork) => {
-  const key = crossrefkey(work.DOI);
+  const key = crossrefkey(doiName(work.DOI));
   work.reference = [];
   return await kv.set(key, work);
 };
 
 export const insertCrossrefWork = async (work: CrossrefWork) => {
-  const key = crossrefkey(work.DOI);
+  const key = crossrefkey(doiName(work.DOI));
   work.reference = [];
   return await kv.atomic().check({ key, versionstamp: null }).set(key, work)
     .commit();

@@ -130,26 +130,63 @@ const deletePubIds: string[] = [
 
   // (Not our Kai)
   "https://api.test.nva.aws.unit.no/publication/0190a3b1fbf8-3183cb5e-d4b5-445a-9358-e797816237d1",
+
+  // Not our Kristine S
+  "https://api.test.nva.aws.unit.no/publication//0190a88ce66e-4d6462a9-cf54-472b-aa34-5c28870e14ce",
+
+  // Not our Marianne F
+  "https://api.test.nva.aws.unit.no/publication/0190a1741eb1-c6daa27b-2947-446a-b055-b9bc1e4dffab",
+  "https://hdl.handle.net/10037/7968",
+
+  // Not our Ragnilhd P
+  "https://api.test.nva.aws.unit.no/publication/01907a6882ce-958d1944-7c9b-45b8-8f6f-e2ad94f14bb3",
+  "https://api.test.nva.aws.unit.no/publication/01907a687fe1-6deff37f-97bf-486e-b3f5-f5235f338d96",
+  "https://api.test.nva.aws.unit.no/publication/01907a6807a7-f5b7e015-afcc-4ff6-abdd-d989203adb86",
+  "https://api.test.nva.aws.unit.no/publication/01907a6807a7-f5b7e015-afcc-4ff6-abdd-d989203adb86",
+  "https://api.test.nva.aws.unit.no/publication/01907a683b77-236807d7-1f55-4ee0-8fff-0ee783845891",
+  "https://api.test.nva.aws.unit.no/publication/01907a6c5865-7cf83546-721f-4f3d-a0da-99b92498d4ea",
+  "https://api.test.nva.aws.unit.no/publication/01907a687904-1989f977-933d-4213-b4d9-5d4f3ec15bd9",
+  "https://api.test.nva.aws.unit.no/publication/01907a636cf0-3c109c10-c74c-4eea-942c-b63304e30b1b",
+  "https://api.test.nva.aws.unit.no/publication/0196ce79f9ca-e38ac4bd-b721-4db5-a19d-3ff4b6d05ed7",
+
+  "https://api.test.nva.aws.unit.no/publication/0196cdd87f9c-92350684-6f16-4f1e-8c6d-ad6f55a83227",
 ];
 
-// Remove, but also put id into KV ["reject"] in order to avoid re-creating the unwarranted pub
+// Remove, and also put id into KV ["reject"] in order to avoid re-creating the unwarranted pub
 export const removeUnwarranted = async () => {
   let i = 0;
   for (const doi of deleteDoiNames) {
     const id = doiUrlString(doi);
-    await deletePub(id, { by: true });
+    await deletePub(id);
     await kv.delete(["crossref", doi]);
     await kv.set(["reject", id], "removeUnwarranted");
     console.warn(i++, id);
   }
 
   for (const id of deletePubIds) {
-    await deletePub(id, { by: true });
+    await deletePub(id);
     await kv.set(["reject", id], "removeUnwarranted");
     console.warn(i++, id);
   }
 };
 
+const removeRejectedFromBy = async () => {
+  let i = 0;
+  const ids = new Set();
+  for await (const { key: [, id] } of kv.list({ prefix: ["reject"] })) {
+    ids.add(id);
+  }
+  for await (const { key } of kv.list({ prefix: ["by"] })) {
+    i++;
+    const [, , id] = key;
+    if (ids.has(id)) {
+      console.warn(i, key);
+      await kv.delete(key);
+    }
+  }
+};
+
 if (import.meta.main) {
   removeUnwarranted();
+  //removeRejectedFromBy();
 }

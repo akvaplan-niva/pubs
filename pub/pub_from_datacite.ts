@@ -1,3 +1,4 @@
+// test UPPERCASE doi
 // for await (const { id, type, attributes } of retrieve(base)) {
 //   const title = attributes.titles.at(0)?.title;
 //   const { publicationYear, publisher } = attributes;
@@ -10,3 +11,5 @@
 //       publicationYear,
 //     }),
 //   );
+
+// https://api.datacite.org/dois/10.18710/vgqylq

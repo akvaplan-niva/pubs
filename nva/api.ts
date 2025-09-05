@@ -1,6 +1,7 @@
 #!/usr/bin/env -S deno run --env-file --allow-env
 import { isDoiUrl } from "../doi/url.ts";
 import { isHandleUrl } from "../pub/handle.ts";
+import { ndjson } from "../util/ndjson.ts";
 import { getNvaConfigFromEnv } from "./config.ts";
 import { NvaPublication } from "./types.ts";
 
@@ -79,6 +80,7 @@ export const getNvaPublication = async (
 ) => {
   const url = isNvaUrl(id) ? id : new URL(`/publication/${id}`, base);
   const req = buildApiRequest({ url, token });
+  console.warn(req.url);
   return await getNva<NvaPublication>(req);
 };
 
@@ -100,7 +102,9 @@ export const searchNvaForId = async (id: string) => {
 
 export const isNvaUrl = (id?: URL | string) =>
   id && URL.canParse(id) &&
-  ["api.test.nva.aws.unit.no"].includes(new URL(id).hostname);
+  ["api.nva.unit.no", "api.test.nva.aws.unit.no"].includes(
+    new URL(id).hostname,
+  );
 
 const requestFromInput = (inp: Request | URL | string) => {
   if (inp instanceof Request) {
@@ -133,9 +137,9 @@ export const getNva = async <T>(inp: Request | URL | string) => {
 };
 
 if (import.meta.main) {
-  const [id] = Deno.args;
-  if (id) {
-    const ndjson = (o: unknown) => console.log(JSON.stringify(o));
+  const [_id] = Deno.args;
+  if (_id) {
+    const id = isNvaUrl(_id) ? _id : buildPublicationUrl(_id).href;
     ndjson(await getNvaPublication({ id }));
   }
 }
