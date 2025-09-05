@@ -23,12 +23,8 @@ interface RefreshMetdata {
 import { akvaplanistPubsInNva, akvaplanPubsInNva } from "./nva/akvaplan.ts";
 import { pubFromNva } from "./pub/pub_from_nva.ts";
 import { Pub } from "./pub/types.ts";
-import { doiName } from "./doi/url.ts";
-import { reject } from "./akvaplanists/_reject.ts";
 import { isRejected } from "./pub/reject.ts";
 import { isHandleUrl } from "./pub/handle.ts";
-import { isNvaUrl } from "./nva/api.ts";
-import { identify } from "./akvaplanists/identify.ts";
 
 async function* nvaIdentifiersInKvPubs() {
   for await (const { value } of kv.list<Pub>({ prefix: ["pub"] })) {
