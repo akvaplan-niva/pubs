@@ -43,3 +43,6 @@ Deno.test("NVA", async (t) => {
   //   assertEquals(await pubFromNva({}), {});
   // });
 });
+
+// handle max 10 authors
+// Found 0 Akvaplanists in https://doi.org/10.1111/raq.12673 authors: [{"name":"Sissel Albrektsen","position":0},{"name":"Raine Kortet","position":1},{"name":"Peter Vilhelm Skov","position":2},{"name":"Elisabeth Ytteborg","position":3},{"name":"Susanne Gitlesen","position":4},{"name":"Dorinde Mechtilde Meike Kleinegris","position":5},{"name":"Liv Torunn Mydland","position":6},{"name":"Jon Øvrum Hansen","position":7},{"name":"Erik Jan Robert Lock","position":8},{"name":"Turid Mørkøre","position":-1}]

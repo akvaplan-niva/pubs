@@ -1,4 +1,4 @@
-import { doiName, isDoiUrl } from "../doi/url.ts";
+import { doiName, doiUrlString, isDoiUrl } from "../doi/url.ts";
 import { handleUrlString, isHandle, isHandleUrl } from "./handle.ts";
 import { getChannel } from "../nva/channel.ts";
 import type {
@@ -10,7 +10,10 @@ import type {
 } from "../nva/types.ts";
 
 import { Pub } from "./types.ts";
-import { getNva, isNvaUrl } from "../nva/api.ts";
+import { getNva, getNvaPublication, isNvaUrl } from "../nva/api.ts";
+import { Akvaplanist } from "../akvaplanists/types.ts";
+import { getFamilyGivenOfCristinPerson } from "../nva/cristin_person.ts";
+import { ndjson } from "../util/ndjson.ts";
 
 export const pubFromNva = async (nva: NvaPublication) => {
   const {
@@ -22,14 +25,23 @@ export const pubFromNva = async (nva: NvaPublication) => {
 
   const { reference } = entityDescription;
 
-  const id = extractId(nva);
+  const link = associatedArtifacts?.find(({ type }) =>
+    "AssociatedLink" === type
+  );
+  const url = link ? String(link.id) : undefined;
+
+  const doiNorm = url && isDoiUrl(url) ? doiName(url) : undefined;
+
+  const id = url && isDoiUrl(url) ? doiUrlString(url) : extractId(nva);
 
   const title = extractTitle({ entityDescription });
 
   const type = typeFromNvaType(extractNvaType(nva));
 
-  const authors = extractAuthors(entityDescription.contributors) ?? [];
-  const _contributors = extractContributors(entityDescription.contributors);
+  const authors = await extractAuthors(entityDescription.contributors) ?? [];
+  const _contributors = await extractContributors(
+    entityDescription.contributors,
+  );
   const contributors = _contributors?.length > 0 ? _contributors : undefined;
   const { publicationContext } = reference; //publicationIn
 
@@ -48,17 +60,11 @@ export const pubFromNva = async (nva: NvaPublication) => {
 
   const parent = parentInNva ? extractId(parentInNva) : undefined;
   const published = isEvent(nva)
-    ? extractEventTime(publicationContext)
+    ? extractEventTime(publicationContext) ??
+      extractPublished({ year, month, day })
     : extractPublished({ year, month, day });
   const created = new Date(publishedDate);
   const modified = new Date(modifiedDate);
-
-  const link = associatedArtifacts?.find(({ type }) =>
-    "AssociatedLink" === type
-  );
-  const url = link ? String(link.id) : undefined;
-
-  const doiNorm = url && isDoiUrl(url) ? doiName(url) : undefined;
 
   const projects = nva?.projects?.length > 0
     ? nva?.projects.map(({ id, name, type }) => ({
@@ -68,7 +74,7 @@ export const pubFromNva = async (nva: NvaPublication) => {
     }))
     : undefined;
 
-  return {
+  const pub = {
     id,
     parent,
     doi: doiNorm,
@@ -84,6 +90,17 @@ export const pubFromNva = async (nva: NvaPublication) => {
     created,
     modified,
   } satisfies Pub;
+
+  const { abstract, description } = entityDescription;
+  const pubWithAbstract = JSON.stringify(pub).length + abstract?.length;
+  if (abstract && pubWithAbstract < 65000) {
+    pub.abstract = abstract;
+  }
+  // if (description) {
+  //   state.value.description = description;
+  // }
+
+  return pub;
 };
 
 const authorTypes = new Set(["Creator", "Journalist"]);
@@ -92,16 +109,34 @@ const extractAnthologyContainer = (
   entityDescription: NvaEntityDescription,
 ) => entityDescription?.mainTitle;
 
-const extractAuthors = (contributors: NvaContributor[]) =>
-  structuredClone(contributors)
-    .filter(({ role: { type } }) => authorTypes.has(type))
-    .map((
-      { identity: { name } },
-    ) => ({ name }));
+const extractAuthors = async (
+  contributors: NvaContributor[],
+) =>
+  await Array.fromAsync(
+    structuredClone(contributors)
+      ?.filter(({ role: { type } }) => authorTypes.has(type))
+      .map(async (
+        { identity: { name, id } },
+      ) => {
+        const m = /cristin\/person\/(?<cristin>[0-9]+)$/.exec(id);
+        if (m) {
+          const id = Number(m.groups.cristin);
+          const names = await getFamilyGivenOfCristinPerson(id);
+          if (names && "family" in names && "given" in names) {
+            const { family, given } = names;
+            return { family, given };
+          } else {
+            return { name };
+          }
+        } else {
+          return { name };
+        }
+      }),
+  );
 
 const extractContributors = (contributors: NvaContributor[]) =>
   structuredClone(contributors)
-    .filter(({ role: { type } }) => !authorTypes.has(type))
+    ?.filter(({ role: { type } }) => !authorTypes.has(type))
     .map((
       { identity: { name } },
     ) => ({ name }));
@@ -119,7 +154,6 @@ const extractEventTime = (ctx: NvaPublicationContext) => {
       return to.replace("T00:00:00Z", "");
     }
   }
-  return String(-9999);
 };
 
 const extractOrFetchContainer = async (
@@ -192,15 +226,15 @@ const extractOrFetchContainer = async (
 export const extractId = (
   { id, handle, entityDescription, additionalIdentifiers }: NvaPublication,
 ) => {
-  const { reference } = entityDescription;
-  const { doi } = reference;
+  const { reference } = entityDescription ?? {};
+  const { doi } = reference ?? {};
 
   const hdl = handle ??
     additionalIdentifiers?.find(({ type }) => type === "HandleIdentifier")
       ?.value;
 
   return doi && isDoiUrl(doi)
-    ? doi
+    ? doiUrlString(doi)
     : hdl && (isHandleUrl(hdl) || isHandle(hdl as string))
     ? handleUrlString(hdl)
     : nvaUrlString(id);
@@ -275,3 +309,32 @@ const typeFromNvaType = (nvapubtype: string) => {
       return nvapubtype;
   }
 };
+
+import { insertPub, updatePub } from "./pub.ts";
+import { kv } from "../kv/kv.ts";
+
+if (import.meta.main) {
+  const [id, action] = Deno.args;
+  if (id) {
+    // NDJSON of pub after transform
+    const nva = await getNvaPublication({ id });
+    const pub = await pubFromNva(nva);
+    ndjson(pub);
+
+    // INSERT or UPDATE publication from NVA
+    // Useful eg. when DOI metadata is missing
+    // $ deno run --env-file --allow-env --allow-net pub/pub_from_nva.ts 0193960f2c7c-0ca81b11-57cf-48c2-9fb0-d7fdf0b783a1 insert
+    const nvakey = ["nva", nva.identifier];
+    switch (action) {
+      case "insert":
+        await kv.set(nvakey, nva);
+        console.warn(await insertPub(pub));
+        break;
+
+      case "update":
+        await kv.set(nvakey, nva);
+        console.warn(await updatePub(pub));
+        break;
+    }
+  }
+}

@@ -1,3 +1,4 @@
+#!/usr/bin/env -S deno run --env-file --allow-env --allow-read --allow-net
 import { keys, kv } from "../kv/kv.ts";
 import {
   getCrossrefWork,
@@ -9,15 +10,26 @@ import type { DoiRegObject, Pub, PubContributor } from "./types.ts";
 
 import { pubFromCrossrefWork } from "./pub_from_crossref.ts";
 import { validatePub } from "./validate_pub.ts";
-import { doiName, doiUrlString, getRegistrar, isDoiUrl } from "../doi/url.ts";
+import {
+  doiName,
+  doiUrlString,
+  getRegistrar,
+  isDoiName,
+  isDoiUrl,
+} from "../doi/url.ts";
 import { NvaPublication } from "../nva/types.ts";
 import { pubFromNva } from "./pub_from_nva.ts";
 
 import { identify } from "../akvaplanists/identify.ts";
 import { getCrossrefWorkFromApi } from "../crossref/work.ts";
 import { isRejected } from "./reject.ts";
+import { ndjson } from "../util/ndjson.ts";
+import { patchInOpenAccessMetadataToPub } from "../openalex/api.ts";
+import { isHandleUrl } from "./handle.ts";
 
 const pubkey = (pub: Pick<Pub, "id">) => ["pub", pub.id] as const;
+
+export const listKvPubs = () => kv.list<Pub>({ prefix: ["pub"] });
 
 export const ids = async () =>
   new Set(
@@ -28,53 +40,72 @@ export const ids = async () =>
 export const doiset = async () =>
   new Set([...(await ids())].filter((id) => isDoiUrl(id)));
 
+export const handleset = async () =>
+  new Set([...(await ids())].filter((id) => isHandleUrl(id)));
+
 export const doinames = async () =>
   new Set([...(await doiset())].map((url) => doiName(url)));
 
 export const deletePub = async (pubid: string) => {
   const pub = await getPub(pubid);
   if (pub) {
-    await kv.delete(pubkey({ id: pubid }));
+    const at = kv.atomic();
+
+    const key = pubkey({ id: pub.id });
+    const rejectkey = ["reject", pub.id];
+
+    console.warn(`DELETE`, key, `SET`, rejectkey);
+
+    const atomic = at
+      .delete(key)
+      .set(rejectkey, { deleted: new Date().toJSON() });
+
+    const { nva, reg, doi } = pub;
+    if (nva) {
+      const nvakey = ["nva", nva];
+      console.warn(`DELETE`, nvakey);
+      atomic.delete(nvakey);
+    }
+
+    if (doi && "Crossref" === reg) {
+      const crossrefkey = ["crossref", doi];
+      console.warn(`DELETE`, crossrefkey);
+      atomic.delete(crossrefkey);
+    }
+    await _deleteIdentities(pub);
+    return await atomic.commit();
   }
-  // deleteCrossref
-  // deleteNva
-  // if (
-  //   id.startsWith(
-  //     nvabase
-  //   )
-  // ) {
-  //   const nva = id.split("/").at(-1);
-  //   console.warn("DELETE", ["nva", nva]);
-  //   await kv.delete(["nva", nva]);
-  // }
+};
 
-  // Delete from "by"
-  if (pub) {
-    const identities = pub?.authors.filter((a) => "identity" in a).map((
-      { identity },
-    ) => identity?.id!);
+export const _deleteIdentities = async (pub) => {
+  const identities = pub?.authors.filter((a) => "identity" in a).map((
+    { identity },
+  ) => identity?.id!).filter((id) => id !== undefined);
+  console.warn(identities);
 
+  if (identities && identities?.length > 0) {
     // loop authors an delete by identity pub.id
     const atomic = kv.atomic();
     for await (const akvaplanist of identities) {
-      const key = ["by", pubid, akvaplanist];
+      const key = ["by", akvaplanist, pub.id];
       console.warn("DELETE", key);
       atomic.delete(key);
     }
     await atomic.commit();
-  } else {
-    // console.warn(
-    //   `WARN: Inefficient loop of KV prefix ["by"] for already deleted pub ${pubid}`,
-    // );
-    // const by = kv.list({ prefix: ["by"] });
-    // for await (const { key } of by) {
-    //   const match = key.at(2) === pubid;
-    //   if (match) {
-    //     console.warn("DELETE", key);
-    //     await kv.delete(key);
-    //   }
-    // }
   }
+  // else {
+  //   console.warn(
+  //     `WARN: Inefficient loop of KV prefix ["by"] for already deleted pub ${pubid}`,
+  //   );
+  //   const by = kv.list({ prefix: ["by"] });
+  //   for await (const { key } of by) {
+  //     const match = key.at(2) === pubid;
+  //     if (match) {
+  //       console.warn("DELETE", key);
+  //       await kv.delete(key);
+  //     }
+  //   }
+  // }
 };
 export const getPub = async (id: string) => {
   if (!await isRejected(id)) {
@@ -105,6 +136,7 @@ export const insertNvaPub = async (nvapub: NvaPublication) => {
   const pub = await pubFromNva(nvapub);
 
   const { doi, nva } = pub;
+  console.warn("insertNvaPub", nva, doi);
   if (nva) {
     if (JSON.stringify(nvapub).length < 65535) {
       await kv.set(["nva", nva], nvapub);
@@ -166,11 +198,21 @@ export const findIdentities = async (contributors: PubContributor[]) => {
 };
 
 const setAtomicBys = (pub: Pub, atomic: Deno.AtomicOperation) => {
+  const id = pub.id.toLowerCase();
   for (const author of pub.authors) {
     const { identity } = author;
     if (identity && identity.id) {
-      const key = ["by", identity.id, pub.id];
+      const key = ["by", identity.id, id];
       atomic.set(key, pub);
+    }
+  }
+  if (pub.contributors && pub.contributors.length > 0) {
+    for (const author of pub.contributors) {
+      const { identity } = author;
+      if (identity && identity.id) {
+        const key = ["by", identity.id, id];
+        atomic.set(key, pub);
+      }
     }
   }
   return atomic;
@@ -186,7 +228,12 @@ export const insertPubs = async (pubs: Pub[]) => {
 const wipePreviusIdentities = ({ identity, ...a }: PubContributor) => a;
 
 const augmentPub = async (pub: Pub) => {
-  const aug = structuredClone(pub);
+  pub = structuredClone(pub);
+  if (isDoiUrl(pub.id) && !isDoiName(pub.doi)) {
+    pub.doi = doiName(pub.id);
+  }
+  const aug = await patchInOpenAccessMetadataToPub(pub);
+
   const authors = await findIdentities(
     //remove previously identified in order to wipe mis-identifications
     aug.authors.map(wipePreviusIdentities),
@@ -212,7 +259,8 @@ const augmentPub = async (pub: Pub) => {
       }
     }
   }
-
+  // FIXME Metadata from NVA may contain only 10 first authors; triggering false warnings of 0 Akvaplanists
+  // This bites for non-DataCite DOIs like https://doi.org/10.5281/zenodo.7092586 – see https://pubs.deno.dev/pub/10.5281/zenodo.7092586
   if (0 === aug.akvaplanists.total && aug.authors?.length > 0) {
     console.warn(
       "Found 0 Akvaplanists in",
@@ -270,7 +318,7 @@ export const updatePub = async (
   if (res) {
     const { value, atomic } = res;
     if (versionstamp) {
-      const key = ["pub", pub.id];
+      const key = ["pub", pub.id.toLowerCase()];
       atomic.check({ key, versionstamp });
     }
     const final = setAtomicBys(value, atomic);
@@ -342,3 +390,25 @@ const countAkvaplanists = (contribs: PubContributor[]) => {
   }
   return akvaplanists;
 };
+
+if (import.meta.main) {
+  const [id, action, text] = Deno.args;
+  if (id) {
+    switch (action) {
+      case "delete": {
+        ndjson(await deletePub(id));
+        break;
+      }
+
+      case "put":
+      case "set": {
+        const pub = JSON.parse(text);
+        ndjson(await updatePub(pub));
+        break;
+      }
+      case "get":
+      default:
+        ndjson(await getPub(id));
+    }
+  }
+}

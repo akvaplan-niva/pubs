@@ -1,6 +1,6 @@
 import { kv } from "./kv/kv.ts";
 import { getCrossrefWorkFromApi } from "./crossref/work.ts";
-import { doiUrlString } from "./doi/url.ts";
+import { doiName, doiUrlString, isDoiName } from "./doi/url.ts";
 import { getOrLookupCrossrefWork } from "./kv/crossref.ts";
 import { getPub, getPubAndReidentify } from "./pub/pub.ts";
 import { getNvaConfigFromEnv } from "./nva/config.ts";
@@ -39,9 +39,9 @@ export const doiPub = async (
   return id ? await getAndSendPub(id, result) : send404();
 };
 
-export const getKv = async (key: Deno.KvKey) => {
+export const getAndSendKvEntry = async (key: Deno.KvKey) => {
   const entry = await kv.get(key);
-  return entry.versionstamp ? await Response.json(entry) : send404();
+  return entry.versionstamp ? Response.json(entry) : send404();
 };
 
 const getAndSendPub = async (
@@ -52,6 +52,17 @@ const getAndSendPub = async (
   const detect = _detect && ["1", "true"].includes(_detect) ? true : false;
   const pub = detect ? await getPubAndReidentify(id) : await getPub(id);
   return pub ? Response.json(pub) : send404();
+};
+
+export const openalexDoiWork = async (
+  _request: Request,
+  _info?: Deno.ServeHandlerInfo,
+  result?: URLPatternResult | null,
+) => {
+  const _doi = pathParam(result, "doi") as string;
+  const doi = doiUrlString(_doi);
+  console.warn({ doi });
+  return await getAndSendKvEntry(["openalex_doi", doi]);
 };
 
 export const hdlPub = async (
@@ -134,7 +145,6 @@ export const streamKvListValues = <T>(
 };
 
 const getNvaId = (cand: string) => {
-  console.warn(cand);
   const prod = "https://api.nva.unit.no/publication/";
   const test = "https://api.test.nva.aws.unit.no/publication/";
   if (

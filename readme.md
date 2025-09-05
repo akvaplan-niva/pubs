@@ -27,9 +27,20 @@ Get works by Akvaplanist: `/by/:id`: https://pubs.deno.dev/by/aki?limit=-1
 
 ## Data flow
 
+Case: _adding a new employee_:
+
+1. First, make sure the person is in the akvaplanist service (), preferably with
+   NVA identifier.
+2. `deno task by $id`
+
 ### Adding pubs
 
 ### Remove pubs
+
+### Akvaplanists
+
+Sometimes former employees are found after the pub is inserted. Name detection
+then needs to be re-run. We can limit the target by at least family name…
 
 Also remove by!
 

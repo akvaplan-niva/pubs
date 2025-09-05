@@ -167,6 +167,7 @@ export interface NvaContributor {
 }
 
 interface NvaIdentity {
+  id: string;
   type: string | "Identity";
   name: string;
   verificationStatus: string;

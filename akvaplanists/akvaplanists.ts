@@ -1,14 +1,15 @@
 import { fetchAndStreamJson } from "../io.ts";
+import { kv } from "../kv/kv.ts";
 import { Akvaplanist } from "./types.ts";
 
 const base = Deno.env.has("AKVAPLANISTS")
   ? Deno.env.get("AKVAPLANISTS")
   : "https://akvaplanists.deno.dev";
-export const currentAkvaplanistsKvUrl = (prefix: string) =>
-  new URL(`/kv/${prefix}?format=json`, base);
+export const akvaplanistsServiceUrl = (prefix: string = "") =>
+  new URL(`/${prefix}?format=json`, base);
 
 export const getCurrentAkvaplanists = async () => {
-  const r = await fetch(currentAkvaplanistsKvUrl("person"));
+  const r = await fetch(akvaplanistsServiceUrl());
   return r && r.ok
     ? (await r.json()).map(({ value }: { value: Akvaplanist }) => value)
     : undefined;
@@ -16,8 +17,8 @@ export const getCurrentAkvaplanists = async () => {
 
 export async function* currentAndPriorAvaplanists() {
   const urls = [
-    currentAkvaplanistsKvUrl("person"),
-    currentAkvaplanistsKvUrl("expired"),
+    akvaplanistsServiceUrl("all"),
+    //currentAkvaplanistsKvUrl("expired"),
   ];
 
   for await (const url of urls) {
@@ -27,9 +28,26 @@ export async function* currentAndPriorAvaplanists() {
   }
 }
 
-// const names = (a: Akvaplanist) => {
+const nameString = ({ family, given }: Pick<Akvaplanist, "family" | "given">) =>
+  [given, family].join(" ");
 
-//   const { given, family,spelling } = akvaplanist;
-//   const fam = [family, ...?spelling.gn]
-//   for const (f of fam)   …
-// }
+export const createNameMap = async () => {
+  const nameLookup = new Map();
+  for await (const akva of currentAndPriorAvaplanists()) {
+    const name = nameString(akva);
+    const { given, family } = akva;
+    nameLookup.set(name, { given, family });
+  }
+  for await (
+    const { value } of kv.list<Pick<Akvaplanist, "family" | "given">>({
+      prefix: ["cristin", "person"],
+    })
+  ) {
+    const name = nameString(value);
+    if (!nameLookup.has(name)) {
+      const { given, family } = value;
+      nameLookup.set(name, { given, family });
+    }
+  }
+  return nameLookup;
+};

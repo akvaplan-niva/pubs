@@ -11,6 +11,7 @@ import {
   doiPub,
   hdlPub,
   nvaPub,
+  openalexDoiWork,
   pathParam,
   publicationMetadataFromNva,
   send404,
@@ -19,25 +20,6 @@ import {
 } from "./server_handlers.ts";
 
 const routes: Route[] = [
-  {
-    pattern: new URLPattern({ pathname: "/by/:id" }),
-    handler: (_request, _info, result) =>
-      streamKvListValues(
-        { prefix: ["by", pathParam(result, "id") as string] },
-        result,
-      ),
-  },
-  {
-    pattern: new URLPattern({ pathname: "/crossref" }),
-    handler: (_request, _info, result) =>
-      streamKvListValues<CrossrefWork>({ prefix: ["crossref"] }, result),
-  },
-  {
-    pattern: new URLPattern({
-      pathname: "/crossref(/https\:\/\/doi\.org)?/:doi(10\.*)",
-    }),
-    handler: crossrefWork,
-  },
   {
     pattern: new URLPattern({ pathname: "/pub" }),
     handler: (_request, _info, result) =>
@@ -49,7 +31,6 @@ const routes: Route[] = [
     }),
     handler: doiPub,
   },
-
   {
     pattern: new URLPattern({
       pathname:
@@ -74,6 +55,36 @@ const routes: Route[] = [
       pathname: "/nva/:id",
     }),
     handler: publicationMetadataFromNva,
+  },
+  {
+    pattern: new URLPattern({ pathname: "/by/:id" }),
+    handler: (_request, _info, result) =>
+      streamKvListValues(
+        { prefix: ["by", pathParam(result, "id") as string] },
+        result,
+      ),
+  },
+  {
+    pattern: new URLPattern({ pathname: "/crossref" }),
+    handler: (_request, _info, result) =>
+      streamKvListValues<CrossrefWork>({ prefix: ["crossref"] }, result),
+  },
+  {
+    pattern: new URLPattern({
+      pathname: "/crossref(/https\:\/\/doi\.org)?/:doi(10\.*)",
+    }),
+    handler: crossrefWork,
+  },
+  {
+    pattern: new URLPattern({ pathname: "/openalex" }),
+    handler: (_request, _info, result) =>
+      streamKvListValues({ prefix: ["openalex_doi"] }, result),
+  },
+  {
+    pattern: new URLPattern({
+      pathname: "/openalex(/https\:\/\/doi\.org)?/:doi(10\.*)",
+    }),
+    handler: openalexDoiWork,
   },
 ];
 

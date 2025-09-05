@@ -13,7 +13,7 @@ const getWorkFromPubsApi = async (doi: string) => {
   }
 };
 
-const getWorkFromCrossrefApi = async (doi: string) => {
+export const getWorkFromCrossrefApi = async (doi: string) => {
   const r = await fetchWorkFromCrossrefApi(doi);
   const text = await r.text();
   if (r?.ok) {

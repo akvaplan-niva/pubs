@@ -9,7 +9,7 @@ import { replaceAuthors } from "./2024-09-03_replace_authors.ts";
 import { removeUnwarranted } from "./2024-09-10_remove.ts";
 import { removeMultiplicates } from "./2024-09-10_remove_multiplicates.ts";
 import { addAkvaplanists } from "./2024-09-18_add_akvaplaniststs.ts";
-import { addCrossref } from "./2024-09-18_add_crossref.ts";
+import { addCrossref } from "../crossref/refresh_crossref.ts";
 
 // Uncomment to bootstrap KV
 // import { bootstrap } from "./2024-09-01_bootstrap.ts";
