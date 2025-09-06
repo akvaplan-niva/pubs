@@ -80,7 +80,6 @@ export const getNvaPublication = async (
 ) => {
   const url = isNvaUrl(id) ? id : new URL(`/publication/${id}`, base);
   const req = buildApiRequest({ url, token });
-  console.warn(req.url);
   return await getNva<NvaPublication>(req);
 };
 

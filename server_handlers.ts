@@ -83,7 +83,6 @@ export const nvaPub = async (
 ) => {
   const _id = pathParam(result, "id");
   const id = _id ? getNvaId(_id) : null;
-  console.warn("nvaPub", id);
   return id ? await getAndSendPub(id, result) : send404();
 };
 
