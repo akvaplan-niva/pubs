@@ -1,5 +1,5 @@
 import { refresh } from "./refresh.ts";
 
-Deno.cron("refresh", "54 9 * * *", () => {
+Deno.cron("refresh", "59 9 * * *", () => {
   refresh();
 });
