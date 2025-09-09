@@ -65,6 +65,22 @@ const routes: Route[] = [
       ),
   },
   {
+    pattern: new URLPattern({ pathname: "/cristinproject_pub" }),
+    handler: (_request, _info, result) =>
+      streamKvListValues<CrossrefWork>(
+        { prefix: ["cristinproject_pub"] },
+        result,
+      ),
+  },
+  {
+    pattern: new URLPattern({ pathname: "/cristinproject_pub/:id" }),
+    handler: (_request, _info, result) =>
+      streamKvListValues(
+        { prefix: ["cristinproject_pub", Number(pathParam(result, "id"))] },
+        result,
+      ),
+  },
+  {
     pattern: new URLPattern({ pathname: "/crossref" }),
     handler: (_request, _info, result) =>
       streamKvListValues<CrossrefWork>({ prefix: ["crossref"] }, result),

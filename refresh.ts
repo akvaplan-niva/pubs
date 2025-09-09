@@ -114,7 +114,6 @@ export const refreshNvaFromEmployedAkvaplanists = async (
     }
   }
 };
-
 export const refreshNvaPubs = async () => {
   const ids = new Set(
     await Array.fromAsync(nvaIdentifiersInKvPubs()) as string[],
@@ -148,6 +147,7 @@ export const refreshNvaPubs = async () => {
       }
       if (has === false) {
         await insertNvaPub(nva);
+
         const akvaplanists = (await findIdentities(pub.authors))?.filter((a) =>
           a?.identity
         )?.map(({ identity }) =>
@@ -220,5 +220,5 @@ export const refresh = async () => {
 };
 
 if (import.meta.main) {
-  refresh();
+  await refresh();
 }
