@@ -197,6 +197,27 @@ export const findIdentities = async (contributors: PubContributor[]) => {
   return contributors;
 };
 
+export const setAtomicNvaCristinProjectRelPub = (
+  pub: Pub,
+  at: Deno.AtomicOperation,
+) => {
+  const { projects } = pub;
+  if (
+    projects && projects?.length > 0 &&
+    projects.some(({ cristin }) => cristin! > 0)
+  ) {
+    for (const p of projects) {
+      const key = [
+        "cristinproject_pub",
+        Number(p.cristin),
+        String(pub.id),
+      ];
+      at.set(key, pub);
+    }
+  }
+  return at;
+};
+
 const setAtomicBys = (pub: Pub, atomic: Deno.AtomicOperation) => {
   const id = pub.id.toLowerCase();
   for (const author of pub.authors) {
@@ -215,7 +236,7 @@ const setAtomicBys = (pub: Pub, atomic: Deno.AtomicOperation) => {
       }
     }
   }
-  return atomic;
+  return setAtomicNvaCristinProjectRelPub(pub, atomic);
 };
 
 export const insertPubs = async (pubs: Pub[]) => {
@@ -305,7 +326,7 @@ export const insertPub = async (
   if (res) {
     const { key, value, atomic } = res;
     atomic.check({ key, versionstamp: null });
-    const final = setAtomicBys(value, atomic);
+    const final = setAtomicBys(value, atomic)!;
     return await final.commit();
   }
 };
