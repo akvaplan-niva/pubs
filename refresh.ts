@@ -216,6 +216,7 @@ export const refresh = async () => {
   // await refreshCrossrefPubsFromManualList();
   // Cristin is replaced by NVA
   // await refreshDoiPubsFromCristin();
+  await kv.delete(["refresh", "nva"]);
   await refreshNvaPubs();
 };
 
