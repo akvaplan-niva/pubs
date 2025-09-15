@@ -17,6 +17,12 @@ import {
   send405,
   streamKvListValues,
 } from "./server_handlers.ts";
+import { refresh } from "./refresh.ts";
+
+Deno.cron("refresh", "9 */4 * * *", () => {
+  console.warn("Refresh NVA", new Date());
+  refresh();
+});
 
 const routes: Route[] = [
   {
