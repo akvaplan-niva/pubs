@@ -1,6 +1,5 @@
 #!/usr/bin/env -S deno serve --env-file --allow-env --watch-hmr --port 7770 --allow-net 
 // allow-net: api.crossref.org,akvaplanists.deno.dev,api.deno.com,api.cristin.no
-import "./cron.ts";
 
 import type { Pub } from "./pub/types.ts";
 import type { CrossrefWork } from "./crossref/types.ts";
