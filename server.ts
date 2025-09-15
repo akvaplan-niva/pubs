@@ -19,7 +19,7 @@ import {
 } from "./server_handlers.ts";
 import { refresh } from "./refresh.ts";
 
-Deno.cron("refresh", "9 */4 * * *", () => {
+Deno.cron("refresh", "47 */1 * * *", () => {
   console.warn("Refresh NVA", new Date());
   refresh();
 });
