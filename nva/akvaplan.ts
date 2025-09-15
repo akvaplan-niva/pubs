@@ -67,7 +67,7 @@ export async function* akvaplanistPubsInNva(
     }
 
     const url = searchUrl(params);
-
+    console.warn(url.href);
     for await (const hit of retrieve(url)) {
       const pub = await pubFromNva(hit);
       if (!cristin && !["odj"].includes(id)) {
