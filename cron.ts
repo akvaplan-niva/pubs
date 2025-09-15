@@ -1,6 +1,6 @@
 import { refresh } from "./refresh.ts";
 
-Deno.cron("refresh", "59 9 * * *", () => {
-  console.warn("cron disabled")
-  //refresh();
+Deno.cron("refresh", "9 */4 * * *", () => {
+  console.warn("refresh NVA", new Date());
+  refresh();
 });
