@@ -18,7 +18,7 @@ import {
   streamKvListValues,
 } from "./server_handlers.ts";
 
-Deno.cron("refresh-nva", "50 */1 * * *", () => {
+Deno.cron("refresh-nva", "57 * * * *", () => {
   console.warn("Refresh NVA", new Date());
   refresh();
 });
