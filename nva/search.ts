@@ -40,6 +40,7 @@ export async function* retrieveInBatches(
     yield hits;
 
     if (nextResults) {
+      console.warn({ nextResults });
       yield* retrieveInBatches(new URL(nextResults), retrieved);
     } else {
       console.assert(

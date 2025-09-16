@@ -1,18 +1,7 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-read --allow-net
 import { kv } from "./kv/kv.ts";
-import {
-  doiset,
-  findIdentities,
-  getPub,
-  handleset,
-  insertDoiPub,
-  insertNvaPub,
-} from "./pub/pub.ts";
-import { doiUrlString, getRegistrar, isDoiUrl } from "./doi/url.ts";
-import { akvaplanDoisInCristinSince } from "./cristin/akvaplan.ts";
-import freshCrossrefDois from "./data/fresh_crossref.json" with {
-  type: "json",
-};
+import { findIdentities, getPub, insertNvaPub } from "./pub/pub.ts";
+import { isDoiUrl } from "./doi/url.ts";
 
 interface RefreshMetdata {
   when: Date;
@@ -22,9 +11,9 @@ interface RefreshMetdata {
 
 import { akvaplanistPubsInNva, akvaplanPubsInNva } from "./nva/akvaplan.ts";
 import { pubFromNva } from "./pub/pub_from_nva.ts";
-import { Pub } from "./pub/types.ts";
-import { isRejected } from "./pub/reject.ts";
+import type { Pub } from "./pub/types.ts";
 import { isHandleUrl } from "./pub/handle.ts";
+import { NvaPublication } from "./nva/types.ts";
 
 async function* nvaIdentifiersInKvPubs() {
   for await (const { value } of kv.list<Pub>({ prefix: ["pub"] })) {
@@ -42,17 +31,17 @@ async function* nvaIdentifiersInKvPubs() {
 //   }
 // }
 
-export const refreshCrossrefPubsFromManualList = async () => {
-  let count = 0;
-  for (
-    const doi of freshCrossrefDois.reverse()
-  ) {
-    console.warn("DEBUG", "New pub from manual list of Crossref DOIs", doi);
-    await insertDoiPub({ doi, reg: "Crossref" });
-    ++count;
-  }
-  await kv.set(["refresh", "manual"], { when: new Date(), count });
-};
+// export const refreshCrossrefPubsFromManualList = async () => {
+//   let count = 0;
+//   for (
+//     const doi of freshCrossrefDois.reverse()
+//   ) {
+//     console.warn("DEBUG", "New pub from manual list of Crossref DOIs", doi);
+//     await insertDoiPub({ doi, reg: "Crossref" });
+//     ++count;
+//   }
+//   await kv.set(["refresh", "manual"], { when: new Date(), count });
+// };
 
 // export const refreshDoiPubsFromCristin = async () => {
 //   let count = 0;
@@ -78,49 +67,11 @@ export const refreshCrossrefPubsFromManualList = async () => {
 //   await kv.set(["refresh", "cristin"], { when: new Date(), count });
 // };
 
-export const refreshNvaFromEmployedAkvaplanists = async (
-  params: Iterable<[string, string]> | Record<string, string> = [],
-  ids: Set<string>,
-) => {
-  //const ids = new Set(await Array.fromAsync(nvaIdentifiersInKvPubs()));
-  const dois = await doiset();
-  const handles = await handleset();
-  let count = 0;
-
-  for await (const nva of akvaplanistPubsInNva(params)) {
-    if (!ids.has(nva.identifier)) {
-      ids.add(nva.identifier);
-
-      const pub = await pubFromNva(nva);
-      const { id, title, published } = pub;
-
-      if (false === await isRejected(id)) {
-        console.warn(ids.size, "akvaplanist", published, id, title);
-
-        if (dois.has(id) || handles.has(id)) {
-          // no-op: ignore if KV pub already exists under DOI or Handle
-        } else if (isDoiUrl(id)) {
-          //   const { agency, status } = await getRegistrar(doiName(id));
-          //   if (agency) {
-          //     //await insertNvaPub(nva);
-
-          //     console.warn(id, agency, ++count);
-          //   } else {
-          //     console.error({ id, status });
-          //   }
-          // }
-        }
-      }
-    }
-  }
-};
 export const refreshNvaPubs = async () => {
   const ids = new Set(
     await Array.fromAsync(nvaIdentifiersInKvPubs()) as string[],
   );
-  const had = new Set(ids);
-  // const dois = await doiset();
-  // const handles = await handleset();
+  const nvaIdsBeforeRefresh = new Set(ids);
 
   const lr = await kv.get<RefreshMetdata>(["refresh", "nva"]);
   const lastRefresh = lr?.value;
@@ -134,76 +85,57 @@ export const refreshNvaPubs = async () => {
   console.warn("refresNvaPubs", { params, refresh: lastRefresh });
   const t0 = performance.now();
 
-  for await (const nva of akvaplanistPubsInNva(params)) {
+  const insert = async (nva: NvaPublication, kind: string) => {
+    ids.add(nva.identifier);
+
+    // Even if the NVA identifier is fresh, the pub may exist under DOI or handle
     const pub = await pubFromNva(nva);
-    const { id, type, title, published } = pub;
-
-    if (!ids.has(nva.identifier)) {
-      console.warn("Fresh NVA", nva.identifier);
-      ids.add(nva.identifier);
-      let has = false;
-      if (isDoiUrl(id) || isHandleUrl(id)) {
-        const pub = await getPub(id);
-        has = pub && pub.id === id ? true : false;
-      }
-      if (has === false) {
-        await insertNvaPub(nva);
-
-        const akvaplanists = (await findIdentities(pub.authors))?.filter((a) =>
-          a?.identity
-        )?.map(({ identity }) =>
-          [identity.id, identity.given, identity.family].join("|")
-        ).filter((
-          parts,
-        ) => parts.length > 5);
-        console.warn(
-          ++found,
-          ids.size,
-          "akvaplanist",
-          akvaplanists,
-          [type, published],
-          id,
-          title,
-        );
-      } else {
-        console.warn({ has, id, pub });
-      }
+    const pubInKv = await getPub(pub.id);
+    const has = pubInKv && pubInKv.id === pub.id ? true : false;
+    if (has === false) {
+      const { id, type, title, published } = pub;
+      const akvaplanists = (await findIdentities(pub?.authors))?.filter((a) =>
+        a?.identity
+      )?.map(({ identity }) =>
+        [identity.id, identity.given, identity.family].join("|")
+      ).filter((
+        parts,
+      ) => parts.length > 5);
+      console.warn(
+        "Fresh NVA",
+        ++found,
+        ids.size,
+        kind,
+        akvaplanists,
+        [type, published],
+        id,
+        title,
+        nva.identifier,
+      );
+      await insertNvaPub(nva);
     }
-  }
+  };
 
   for await (const nva of akvaplanPubsInNva(params)) {
-    const pub = await pubFromNva(nva);
-    const { id, type, title, published } = pub;
-
     if (!ids.has(nva.identifier)) {
-      ids.add(nva.identifier);
-      let has = false;
-      if (isDoiUrl(id) || isHandleUrl(id)) {
-        const pub = await getPub(id);
-        has = pub && pub.id === id ? true : false;
-      }
-      if (has === false) {
-        await insertNvaPub(nva);
-        console.warn(
-          ++found,
-          ids.size,
-          "akvaplan",
-          [type, published],
-          id,
-          title,
-        );
-      }
+      await insert(nva, "akvaplan");
+    }
+  }
+  for await (const nva of akvaplanistPubsInNva(params)) {
+    if (!ids.has(nva.identifier)) {
+      await insert(nva, "akvaplanist");
     }
   }
 
-  const diff = had.difference(ids);
-  console.warn(diff);
+  const diff = ids.difference(nvaIdsBeforeRefresh);
+  console.warn({ diff });
 
   const elapsed = (performance.now() - t0) / 1000;
   await kv.set(["refresh", "nva"], {
     when: new Date(),
     count: ids.size,
     elapsed,
+    diff: [...diff],
   });
 };
 
@@ -223,11 +155,7 @@ export const refresh = async () => {
   await refreshNvaPubs();
 };
 
-Deno.cron("refresh", "9 */4 * * *", () => {
-  console.warn("Refresh NVA", new Date());
-  refresh();
-});
-
 if (import.meta.main) {
+  //await clearRefreshMetadata();
   await refresh();
 }

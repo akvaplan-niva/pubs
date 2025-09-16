@@ -99,7 +99,6 @@ export const pubFromNva = async (nva: NvaPublication) => {
   // if (description) {
   //   state.value.description = description;
   // }
-
   return pub;
 };
 

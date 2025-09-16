@@ -1,5 +1,6 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net=api.test.nva.aws.unit.no
 import { getCurrentAkvaplanists } from "../akvaplanists/akvaplanists.ts";
+import { kv } from "../kv/kv.ts";
 import { pubFromNva } from "../pub/pub_from_nva.ts";
 import { ignoreTypes } from "./config.ts";
 import { nvaCristinPersonUrl } from "./cristin_person.ts";
@@ -67,11 +68,19 @@ export async function* akvaplanistPubsInNva(
     }
 
     const url = searchUrl(params);
-    console.warn(url.href);
+    // const pubsInKv = await Array.fromAsync(kv.list({ prefix: ["by", id] }));
+    // const count = { kv: pubsInKv.length };
+    console.warn({
+      id,
+      family,
+      given,
+      cristin,
+      url: url.href,
+    });
     for await (const hit of retrieve(url)) {
       const pub = await pubFromNva(hit);
       if (!cristin && !["odj"].includes(id)) {
-        // If employed, add cristin id to [akvaplanists] external ids
+        // If this code is reached, the cristin id should be found/created and added external project [akvaplanists] in external ids
         // List people without ids:
         // ~/akvaplan-niva/akvaplanists$ deno task list | nd-map d.value | nd-filter 'd.id.length===3 && !d.expired && !d.cristin' | nd-map --select id,family,cristin,from
 
@@ -84,7 +93,7 @@ export async function* akvaplanistPubsInNva(
         });
       }
       if (ignoreTypes.includes(pub.type)) {
-        //console.debug("ignoring", pub.type, pub.id);
+        console.debug("ignoring", pub.type, pub.id);
       } else {
         yield hit;
       }
@@ -98,6 +107,7 @@ export async function* akvaplanPubsInNva(
   const params = new URLSearchParams(searchParams);
   //params.set("institution", "AKVAPLAN");
   params.set("searchAll", "akvaplan");
+  params.set("size", "100");
   const url = searchUrl(params);
   console.warn(url.href);
   for await (const hit of retrieve(url)) {
