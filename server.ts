@@ -4,7 +4,7 @@
 import type { Pub } from "./pub/types.ts";
 import type { CrossrefWork } from "./crossref/types.ts";
 import { type Route, route } from "@std/http";
-import { refresh } from "./refresh.ts";
+import { refreshNvaPubs } from "./refresh.ts";
 import {
   crossrefWork,
   doiPub,
@@ -18,10 +18,10 @@ import {
   streamKvListValues,
 } from "./server_handlers.ts";
 
-// Deno.cron("refresh-nva", "57 * * * *", () => {
-//   console.warn("Refresh NVA", new Date());
-//   refresh();
-// });
+Deno.cron("Refresh NVA", "57 * * * *", async () => {
+  console.warn("Refresh NVA", new Date());
+  await refreshNvaPubs();
+});
 
 const routes: Route[] = [
   {
