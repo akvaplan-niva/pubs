@@ -53,6 +53,7 @@ export async function* akvaplanistPubsInNva(
     const params = new URLSearchParams(searchParams);
 
     params.delete("institution");
+    params.set("size", "100");
 
     if (notAkvaplanists.has(id)) {
       params.set("contributor_not", notAkvaplanists.get(id)!);
@@ -79,7 +80,7 @@ export async function* akvaplanistPubsInNva(
     });
     for await (const hit of retrieve(url)) {
       const pub = await pubFromNva(hit);
-      if (!cristin && !["odj"].includes(id)) {
+      if (!cristin) {
         // If this code is reached, the cristin id should be found/created and added external project [akvaplanists] in external ids
         // List people without ids:
         // ~/akvaplan-niva/akvaplanists$ deno task list | nd-map d.value | nd-filter 'd.id.length===3 && !d.expired && !d.cristin' | nd-map --select id,family,cristin,from
