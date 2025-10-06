@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-read --allow-net
 import { kv } from "./kv/kv.ts";
 import { findIdentities, getPub, insertNvaPub } from "./pub/pub.ts";
-import { isDoiUrl } from "./doi/url.ts";
+import manualListOfNvaIds from "./data/nva_ids.json" with { type: "json" };
 
 interface RefreshMetdata {
   when: Date;
@@ -14,6 +14,8 @@ import { pubFromNva } from "./pub/pub_from_nva.ts";
 import type { Pub } from "./pub/types.ts";
 import { isHandleUrl } from "./pub/handle.ts";
 import { NvaPublication } from "./nva/types.ts";
+import { getNvaPublication } from "./nva/api.ts";
+import { isRejected } from "./pub/reject.ts";
 
 async function* nvaIdentifiersInKvPubs() {
   for await (const { value } of kv.list<Pub>({ prefix: ["pub"] })) {
@@ -88,8 +90,13 @@ export const refreshNvaPubs = async () => {
   const insert = async (nva: NvaPublication, kind: string) => {
     ids.add(nva.identifier);
 
-    // Even if the NVA identifier is fresh, the pub may exist under DOI or handle
+    // NVA identifier may be fresh, but the pub may exist under DOI or handle
+    // Also, DOI or handle may be fresh
     const pub = await pubFromNva(nva);
+    const rej = await isRejected(pub.id);
+    if (rej) {
+      console.warn("REJECTED", pub);
+    }
     const pubInKv = await getPub(pub.id);
     const has = pubInKv && pubInKv.id === pub.id ? true : false;
     if (has === false) {
@@ -116,14 +123,22 @@ export const refreshNvaPubs = async () => {
     }
   };
 
-  for await (const nva of akvaplanPubsInNva(params)) {
-    if (!ids.has(nva.identifier)) {
-      await insert(nva, "akvaplan");
+  for await (const id of manualListOfNvaIds) {
+    if (!ids.has(id)) {
+      const nva = await getNvaPublication({ id });
+      await insert(nva, "manual");
     }
   }
+
   for await (const nva of akvaplanistPubsInNva(params)) {
     if (!ids.has(nva.identifier)) {
       await insert(nva, "akvaplanist");
+    }
+  }
+
+  for await (const nva of akvaplanPubsInNva(params)) {
+    if (!ids.has(nva.identifier)) {
+      await insert(nva, "akvaplan");
     }
   }
 
@@ -139,23 +154,11 @@ export const refreshNvaPubs = async () => {
   });
 };
 
-export const clearRefreshMetadata = async () => {
-  const atomic = kv.atomic();
-  ["nva", "manual", "cristin"].map((id) => {
-    atomic.delete(["refresh", id]);
-  });
-  await atomic.commit();
-};
-
 export const refresh = async () => {
-  // await refreshCrossrefPubsFromManualList();
-  // Cristin is replaced by NVA
-  // await refreshDoiPubsFromCristin();
-  // await kv.delete(["refresh", "nva"]);
+  await kv.delete(["refresh", "nva"]);
   await refreshNvaPubs();
 };
 
 if (import.meta.main) {
-  //await clearRefreshMetadata();
   await refresh();
 }
