@@ -26,6 +26,8 @@ import { isRejected } from "./reject.ts";
 import { ndjson } from "../util/ndjson.ts";
 import { patchInOpenAccessMetadataToPub } from "../openalex/api.ts";
 import { isHandleUrl } from "./handle.ts";
+import { nvaCristinPersonUrl } from "../nva/cristin_person.ts";
+import { nvaPubUrl } from "../nva/api.ts";
 
 const pubkey = (pub: Pick<Pub, "id">) => ["pub", pub.id] as const;
 
@@ -135,8 +137,8 @@ export const insertDoiPub = (
 export const insertNvaPub = async (nvapub: NvaPublication) => {
   const pub = await pubFromNva(nvapub);
 
-  const { doi, nva } = pub;
-  console.warn("insertNvaPub", nva, doi);
+  const { id, nva } = pub;
+  console.warn("insertNvaPub", nva, pub);
   if (nva) {
     if (JSON.stringify(nvapub).length < 65535) {
       await kv.set(["nva", nva], nvapub);
@@ -146,17 +148,18 @@ export const insertNvaPub = async (nvapub: NvaPublication) => {
   }
 
   // Does pub have DOI?
-  if (doi) {
-    if (!isDoiUrl(pub.id)) {
-      const nvaid = nvapub.id;
-      pub.id = doiUrlString(doi);
-      await kv.delete(["pub", nvaid]);
+  if (isDoiUrl(id)) {
+    // When DOI is added later
+    if (nva) {
+      const nvaid = nvaPubUrl(nva).href;
+      const alreadyInUnderNvaId = await getPub(nvaid);
+      console.warn(alreadyInUnderNvaId);
+      // @todo FIXME DELETE to avoid dup when DOI is added later
+      // await kv.delete(["pub", nvaid]);
     }
 
-    console.assert(
-      doiUrlString(doi) === doiUrlString(pub.id),
-      `Pub id (${pub.id}) and doi (${doi}) mismatch`,
-    );
+    const doi = doiName(id);
+    pub.doi = doi;
 
     const existing = await getPub(pub.id);
     if (existing && existing?.nva !== nva) {
@@ -174,9 +177,12 @@ export const insertNvaPub = async (nvapub: NvaPublication) => {
     } else {
       // If DOI, use Crossref metadata, but add NVA id; useful to find PDF and to lookup parents and siblings for book chapters like https://doi.org/10.26530/oapen_627870 => https://test.nva.sikt.no/registration/01907a80beda-b1a7fe47-42b8-4fa1-8898-783543242ddd
       const reg = await getRegistrar(doi);
-      if (reg) {
-        const { agency } = reg;
+      console.warn({ reg });
+      const { agency } = reg ?? {};
+      if (agency) {
         await insertDoiPub({ doi, reg: agency, add: { ...pub } });
+      } else {
+        console.error("No DOI registration agency found for", doi);
       }
     }
   } else {
