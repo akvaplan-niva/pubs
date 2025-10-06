@@ -1,0 +1,417 @@
+{
+  "identifier": "0198cc82256e-a7225f74-8d28-4ca9-abde-ccfefe6109b7",
+  "contributorOrganizations": [
+    "https://api.nva.unit.no/cristin/organization/68407430.0.0.0",
+    "https://api.nva.unit.no/cristin/organization/10600048.0.0.0",
+    "https://api.nva.unit.no/cristin/organization/184.12.60.0",
+    "https://api.nva.unit.no/cristin/organization/184.12.0.0",
+    "https://api.nva.unit.no/cristin/organization/184.0.0.0"
+  ],
+  "modelVersion": "0.23.3",
+  "resourceOwner": {
+    "owner": "uib@184.0.0.0",
+    "ownerAffiliation": "https://api.nva.unit.no/cristin/organization/184.0.0.0"
+  },
+  "type": "Publication",
+  "@context": "https://api.nva.unit.no/publication/context",
+  "indexDocumentCreatedAt": "2025-09-29T14:20:13.372567203Z",
+  "curatingInstitutions": [
+    "https://api.nva.unit.no/cristin/organization/184.0.0.0"
+  ],
+  "entityDescription": {
+    "reference": {
+      "type": "Reference",
+      "publicationInstance": {
+        "volume": "29",
+        "pages": {
+          "end": "167",
+          "type": "Range",
+          "begin": "157"
+        },
+        "issue": "2",
+        "type": "AcademicArticle"
+      },
+      "publicationContext": {
+        "identifier": "CB5BCADD-95D6-462D-94C2-234A47F572A0",
+        "year": "2007",
+        "name": "Journal of Plankton Research",
+        "id": "https://api.nva.unit.no/publication-channels-v2/serial-publication/CB5BCADD-95D6-462D-94C2-234A47F572A0/2007",
+        "type": "Journal",
+        "onlineIssn": "1464-3774",
+        "printIssn": "0142-7873",
+        "scientificValue": "LevelOne",
+        "sameAs": "https://kanalregister.hkdir.no/publiseringskanaler/info/tidsskrift?pid=CB5BCADD-95D6-462D-94C2-234A47F572A0"
+      },
+      "doi": "https://doi.org/10.1093/plankt/fbm003"
+    },
+    "contributorsCount": 4,
+    "mainTitle": "Causes for mass occurrences of the jellyfish Periphylla periphylla: a hypothesis that involves optically conditioned retention",
+    "alternativeAbstracts": {},
+    "language": "http://lexvo.org/id/iso639-3/eng",
+    "contributors": [
+      {
+        "sequence": "1",
+        "role": {
+          "type": "Creator"
+        },
+        "identity": {
+          "verificationStatus": "Verified",
+          "name": "Tom Asbjørn Sørnes",
+          "id": "https://api.nva.unit.no/cristin/person/49678",
+          "type": "Identity"
+        },
+        "correspondingAuthor": "false",
+        "affiliations": [
+          {
+            "partOf": [
+              {
+                "id": "https://api.nva.unit.no/cristin/organization/184.12.0.0"
+              }
+            ],
+            "countryCode": "NO",
+            "id": "https://api.nva.unit.no/cristin/organization/184.12.60.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Institutt for biovitenskap (BIO)",
+              "en": "Department of Biological Sciences (BIO)"
+            }
+          }
+        ],
+        "type": "Contributor"
+      },
+      {
+        "sequence": "2",
+        "role": {
+          "type": "Creator"
+        },
+        "identity": {
+          "verificationStatus": "Verified",
+          "name": "Dag Lorents Aksnes",
+          "id": "https://api.nva.unit.no/cristin/person/4776",
+          "type": "Identity"
+        },
+        "correspondingAuthor": "false",
+        "affiliations": [
+          {
+            "partOf": [
+              {
+                "id": "https://api.nva.unit.no/cristin/organization/184.12.0.0"
+              }
+            ],
+            "countryCode": "NO",
+            "id": "https://api.nva.unit.no/cristin/organization/184.12.60.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Institutt for biovitenskap (BIO)",
+              "en": "Department of Biological Sciences (BIO)"
+            }
+          }
+        ],
+        "type": "Contributor"
+      },
+      {
+        "sequence": "3",
+        "role": {
+          "type": "Creator"
+        },
+        "identity": {
+          "verificationStatus": "Verified",
+          "name": "Ulf Båmstedt",
+          "id": "https://api.nva.unit.no/cristin/person/50324",
+          "type": "Identity"
+        },
+        "correspondingAuthor": "false",
+        "affiliations": [
+          {
+            "countryCode": "SE",
+            "id": "https://api.nva.unit.no/cristin/organization/10600048.0.0.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Umeå universitet",
+              "en": "Umeå University"
+            }
+          },
+          {
+            "partOf": [
+              {
+                "id": "https://api.nva.unit.no/cristin/organization/184.12.0.0"
+              }
+            ],
+            "countryCode": "NO",
+            "id": "https://api.nva.unit.no/cristin/organization/184.12.60.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Institutt for biovitenskap (BIO)",
+              "en": "Department of Biological Sciences (BIO)"
+            }
+          }
+        ],
+        "type": "Contributor"
+      },
+      {
+        "sequence": "4",
+        "role": {
+          "type": "Creator"
+        },
+        "identity": {
+          "verificationStatus": "NotVerified",
+          "name": "Marsh J. Youngbluth",
+          "type": "Identity"
+        },
+        "correspondingAuthor": "false",
+        "affiliations": [
+          {
+            "countryCode": "US",
+            "id": "https://api.nva.unit.no/cristin/organization/68407430.0.0.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Harbor Branch Oceanographic Institution"
+            }
+          }
+        ],
+        "type": "Contributor"
+      }
+    ],
+    "contributorsPreview": [
+      {
+        "sequence": "1",
+        "role": {
+          "type": "Creator"
+        },
+        "identity": {
+          "verificationStatus": "Verified",
+          "name": "Tom Asbjørn Sørnes",
+          "id": "https://api.nva.unit.no/cristin/person/49678",
+          "type": "Identity"
+        },
+        "correspondingAuthor": "false",
+        "affiliations": [
+          {
+            "partOf": [
+              {
+                "id": "https://api.nva.unit.no/cristin/organization/184.12.0.0"
+              }
+            ],
+            "countryCode": "NO",
+            "id": "https://api.nva.unit.no/cristin/organization/184.12.60.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Institutt for biovitenskap (BIO)",
+              "en": "Department of Biological Sciences (BIO)"
+            }
+          }
+        ],
+        "type": "Contributor"
+      },
+      {
+        "sequence": "2",
+        "role": {
+          "type": "Creator"
+        },
+        "identity": {
+          "verificationStatus": "Verified",
+          "name": "Dag Lorents Aksnes",
+          "id": "https://api.nva.unit.no/cristin/person/4776",
+          "type": "Identity"
+        },
+        "correspondingAuthor": "false",
+        "affiliations": [
+          {
+            "partOf": [
+              {
+                "id": "https://api.nva.unit.no/cristin/organization/184.12.0.0"
+              }
+            ],
+            "countryCode": "NO",
+            "id": "https://api.nva.unit.no/cristin/organization/184.12.60.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Institutt for biovitenskap (BIO)",
+              "en": "Department of Biological Sciences (BIO)"
+            }
+          }
+        ],
+        "type": "Contributor"
+      },
+      {
+        "sequence": "3",
+        "role": {
+          "type": "Creator"
+        },
+        "identity": {
+          "verificationStatus": "Verified",
+          "name": "Ulf Båmstedt",
+          "id": "https://api.nva.unit.no/cristin/person/50324",
+          "type": "Identity"
+        },
+        "correspondingAuthor": "false",
+        "affiliations": [
+          {
+            "countryCode": "SE",
+            "id": "https://api.nva.unit.no/cristin/organization/10600048.0.0.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Umeå universitet",
+              "en": "Umeå University"
+            }
+          },
+          {
+            "partOf": [
+              {
+                "id": "https://api.nva.unit.no/cristin/organization/184.12.0.0"
+              }
+            ],
+            "countryCode": "NO",
+            "id": "https://api.nva.unit.no/cristin/organization/184.12.60.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Institutt for biovitenskap (BIO)",
+              "en": "Department of Biological Sciences (BIO)"
+            }
+          }
+        ],
+        "type": "Contributor"
+      },
+      {
+        "sequence": "4",
+        "role": {
+          "type": "Creator"
+        },
+        "identity": {
+          "verificationStatus": "NotVerified",
+          "name": "Marsh J. Youngbluth",
+          "type": "Identity"
+        },
+        "correspondingAuthor": "false",
+        "affiliations": [
+          {
+            "countryCode": "US",
+            "id": "https://api.nva.unit.no/cristin/organization/68407430.0.0.0",
+            "type": "Organization",
+            "labels": {
+              "nb": "Harbor Branch Oceanographic Institution"
+            }
+          }
+        ],
+        "type": "Contributor"
+      }
+    ],
+    "type": "EntityDescription",
+    "publicationDate": {
+      "year": "2007",
+      "type": "PublicationDate"
+    }
+  },
+  "createdDate": "2025-08-21T12:02:18.094947922Z",
+  "publicationContextUris": [
+    "https://api.nva.unit.no/publication-channels-v2/serial-publication/CB5BCADD-95D6-462D-94C2-234A47F572A0/2007"
+  ],
+  "modifiedDate": "2025-08-21T12:02:18.094947922Z",
+  "additionalIdentifiers": [
+    {
+      "sourceName": "cristin@uib",
+      "type": "CristinIdentifier",
+      "value": "372339"
+    },
+    {
+      "sourceName": "ISI",
+      "type": "AdditionalIdentifier",
+      "value": "000245354200005"
+    },
+    {
+      "sourceName": "cristin@uib",
+      "type": "ScopusIdentifier",
+      "value": "2-s2.0-34047216392"
+    }
+  ],
+  "publisher": {
+    "id": "https://api.nva.unit.no/customer/22139870-8d31-4df9-bc45-14eb68287c4a",
+    "type": "Organization"
+  },
+  "filesStatus": "noFiles",
+  "id": "https://api.nva.unit.no/publication/0198cc82256e-a7225f74-8d28-4ca9-abde-ccfefe6109b7",
+  "pendingOpenFileCount": "0",
+  "publishedDate": "2025-08-21T12:02:18.094947922Z",
+  "scientificIndex": {},
+  "topLevelOrganizations": [
+    {
+      "countryCode": "US",
+      "id": "https://api.nva.unit.no/cristin/organization/68407430.0.0.0",
+      "type": "Organization",
+      "labels": {
+        "nb": "Harbor Branch Oceanographic Institution"
+      }
+    },
+    {
+      "hasPart": [
+        {
+          "partOf": [
+            {
+              "id": "https://api.nva.unit.no/cristin/organization/184.0.0.0"
+            }
+          ],
+          "hasPart": [
+            {
+              "partOf": [
+                {
+                  "id": "https://api.nva.unit.no/cristin/organization/184.12.0.0"
+                }
+              ],
+              "countryCode": "NO",
+              "id": "https://api.nva.unit.no/cristin/organization/184.12.60.0",
+              "type": "Organization",
+              "labels": {
+                "nb": "Institutt for biovitenskap (BIO)",
+                "en": "Department of Biological Sciences (BIO)"
+              }
+            }
+          ],
+          "countryCode": "NO",
+          "id": "https://api.nva.unit.no/cristin/organization/184.12.0.0",
+          "type": "Organization",
+          "labels": {
+            "nb": "Fakultet for naturvitenskap og teknologi",
+            "en": "Faculty of Science and Technology"
+          }
+        }
+      ],
+      "countryCode": "NO",
+      "id": "https://api.nva.unit.no/cristin/organization/184.0.0.0",
+      "type": "Organization",
+      "contributorCristinIds": [
+        {
+          "verificationStatus": "Verified",
+          "name": "Tom Asbjørn Sørnes",
+          "id": "https://api.nva.unit.no/cristin/person/49678",
+          "type": "Identity"
+        },
+        {
+          "verificationStatus": "Verified",
+          "name": "Dag Lorents Aksnes",
+          "id": "https://api.nva.unit.no/cristin/person/4776",
+          "type": "Identity"
+        },
+        {
+          "verificationStatus": "Verified",
+          "name": "Ulf Båmstedt",
+          "id": "https://api.nva.unit.no/cristin/person/50324",
+          "type": "Identity"
+        }
+      ],
+      "labels": {
+        "nb": "Universitetet i Bergen",
+        "en": "University of Bergen"
+      }
+    },
+    {
+      "countryCode": "SE",
+      "id": "https://api.nva.unit.no/cristin/organization/10600048.0.0.0",
+      "type": "Organization",
+      "labels": {
+        "nb": "Umeå universitet",
+        "en": "Umeå University"
+      }
+    }
+  ],
+  "status": "PUBLISHED"
+}
