@@ -75,6 +75,9 @@ export const downloadPublicFile = async (
   }
 };
 
+export const nvaPubUrl = (id: string) =>
+  isNvaUrl(id) ? new URL(id) : new URL(`/publication/${id}`, base);
+
 export const getNvaPublication = async (
   { id, token }: { id: string; token?: string },
 ) => {
