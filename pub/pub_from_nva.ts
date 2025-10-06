@@ -113,7 +113,7 @@ const extractAuthors = async (
 ) =>
   await Array.fromAsync(
     structuredClone(contributors)
-      ?.filter(({ role: { type } }) => authorTypes.has(type))
+      ?.filter(({ role }) => authorTypes.has(role?.type))
       .map(async (
         { identity: { name, id } },
       ) => {
@@ -135,7 +135,7 @@ const extractAuthors = async (
 
 const extractContributors = (contributors: NvaContributor[]) =>
   structuredClone(contributors)
-    ?.filter(({ role: { type } }) => !authorTypes.has(type))
+    ?.filter(({ role }) => !authorTypes.has(role?.type))
     .map((
       { identity: { name } },
     ) => ({ name }));
