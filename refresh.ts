@@ -161,6 +161,6 @@ export const refresh = async () => {
 };
 
 if (import.meta.main) {
-  await refreshProjects();
-  //await refresh();
+  //await refreshProjects();
+  await refresh();
 }
