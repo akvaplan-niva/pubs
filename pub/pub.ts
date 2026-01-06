@@ -18,16 +18,16 @@ import {
   isDoiUrl,
 } from "../doi/url.ts";
 import { NvaPublication } from "../nva/types.ts";
-import { pubFromNva } from "./pub_from_nva.ts";
+import { extractId, pubFromNva } from "./pub_from_nva.ts";
 
 import { identify } from "../akvaplanists/identify.ts";
 import { getCrossrefWorkFromApi } from "../crossref/work.ts";
 import { isRejected } from "./reject.ts";
 import { ndjson } from "../util/ndjson.ts";
 import { patchInOpenAccessMetadataToPub } from "../openalex/api.ts";
-import { isHandleUrl } from "./handle.ts";
+import { getHandleLocation, isHandleUrl } from "./handle.ts";
 import { nvaCristinPersonUrl } from "../nva/cristin_person.ts";
-import { nvaPubUrl } from "../nva/api.ts";
+import { getNvaPublication, isNvaUrl, nvaPubUrl } from "../nva/api.ts";
 
 const pubkey = (pub: Pick<Pub, "id">) => ["pub", pub.id] as const;
 
@@ -134,11 +134,11 @@ export const insertDoiPub = (
   }
 };
 
-export const insertNvaPub = async (nvapub: NvaPublication) => {
+export const upsertNvaPub = async (nvapub: NvaPublication) => {
   const pub = await pubFromNva(nvapub);
 
   const { id, nva } = pub;
-  console.warn("insertNvaPub", nva, pub);
+  console.warn("upsertNvaPub", id, nva);
   if (nva) {
     if (JSON.stringify(nvapub).length < 65535) {
       await kv.set(["nva", nva], nvapub);
@@ -152,10 +152,12 @@ export const insertNvaPub = async (nvapub: NvaPublication) => {
     // When DOI is added later
     if (nva) {
       const nvaid = nvaPubUrl(nva).href;
-      const alreadyInUnderNvaId = await getPub(nvaid);
-      console.warn(alreadyInUnderNvaId);
-      // @todo FIXME DELETE to avoid dup when DOI is added later
-      // await kv.delete(["pub", nvaid]);
+      const storedUnderNvaId = await getPub(nvaid);
+      if (null !== storedUnderNvaId) {
+        console.warn("Check for duplication", nvaid, "vs.", id);
+        // @todo FIXME DELETE to avoid dup when DOI is added later
+        // await kv.delete(["pub", nvaid]);
+      }
     }
 
     const doi = doiName(id);
@@ -186,7 +188,7 @@ export const insertNvaPub = async (nvapub: NvaPublication) => {
       }
     }
   } else {
-    await insertPub(pub);
+    await updatePub(pub);
   }
 };
 
@@ -286,8 +288,6 @@ const augmentPub = async (pub: Pub) => {
       }
     }
   }
-  // FIXME Metadata from NVA may contain only 10 first authors; triggering false warnings of 0 Akvaplanists
-  // This bites for non-DataCite DOIs like https://doi.org/10.5281/zenodo.7092586 – see https://pubs.deno.dev/pub/10.5281/zenodo.7092586
   if (0 === aug.akvaplanists.total && aug.authors?.length > 0) {
     console.warn(
       "Found 0 Akvaplanists in",
@@ -334,6 +334,49 @@ export const insertPub = async (
     atomic.check({ key, versionstamp: null });
     const final = setAtomicBys(value, atomic)!;
     return await final.commit();
+  }
+};
+
+export const deleteIdInsertNvaDoi = async (id: string) => {
+  if (isHandleUrl(id)) {
+    return await deleteHandleInsertNvaDoi(id);
+  } else if (isNvaUrl(id)) {
+    return await deleteNvaIdInsertNvaDoi(id);
+  }
+  throw `Unhandled id type (${id})`;
+};
+
+export const deleteNvaIdInsertNvaDoi = async (id: string) => {
+  const nva = await getNvaPublication({ id });
+  const pub = await pubFromNva(nva);
+  if (nva && pub && isDoiUrl(pub.id)) {
+    await deletePub(id);
+    const maybe = await getPub(pub.id);
+    if (!maybe) {
+      console.warn(`DELETE ${id} INSERT ${pub.id}`);
+      await insertPub(pub);
+    } else {
+      console.warn(pub);
+      console.warn(`DELETE ${id} UPDATE ${pub.id}`);
+      await updatePub(pub);
+    }
+  }
+};
+
+export const deleteHandleInsertNvaDoi = async (id: string) => {
+  const landing = await getHandleLocation(id);
+  if (landing) {
+    console.warn(`${id} -> NVA ${landing}`);
+    console.assert(landing?.startsWith("https://nva.sikt.no/registration/"));
+    const nvaId = landing?.split("/").at(-1)!;
+
+    const nva = await getNvaPublication({ id: nvaId });
+    const pub = await pubFromNva(nva);
+    if (nva && pub && isDoiUrl(pub.id)) {
+      console.warn(`DELETE ${id} INSERT ${pub.id}`);
+      await deletePub(id);
+      await insertPub(pub);
+    }
   }
 };
 
