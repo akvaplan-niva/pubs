@@ -49,7 +49,9 @@ export const patchInOpenAccessMetadataToPub = async (pub: Pub) => {
       const r = await fetchOpenalexWork(id);
       if (r?.ok) {
         const openalex = await r.json();
-        await kv.set(key, openalex);
+        if (JSON.stringify(openalex).length < 65000) {
+          await kv.set(key, openalex);
+        }
         return patchInOpenAccess(pub, openalex);
       }
     }

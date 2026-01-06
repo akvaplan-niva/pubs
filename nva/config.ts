@@ -1,12 +1,13 @@
 import { authBase, base } from "./defaults.ts";
 
 export const ignoreTypes = [
-  // "Lecture",
-  // "ConferenceLecture",
-  // "ConferencePoster",
-  // "PopularScienceArticle",
-  // "MediaInterview",
-  // "MediaFeatureArticle",
+  "Lecture",
+  "ConferenceLecture",
+  "ConferencePoster",
+  "PopularScienceArticle",
+  "MediaBlogPost",
+  "MediaInterview",
+  "MediaFeatureArticle",
 ];
 
 export const getNvaConfigFromEnv = () => ({

@@ -16,3 +16,10 @@ export const isRejected = async (id: string) => {
   const { versionstamp } = await kv.get(["reject", id]);
   return versionstamp ? true : false;
 };
+
+const deleteRejected = async (id: string) => {
+  const { key, versionstamp } = await kv.get(["reject", id]);
+  if (versionstamp) {
+    await kv.delete(key);
+  }
+};

@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-read --allow-net
 import { kv } from "./kv/kv.ts";
-import { findIdentities, getPub, insertNvaPub } from "./pub/pub.ts";
+import { findIdentities, getPub, upsertNvaPub } from "./pub/pub.ts";
 import manualListOfNvaIds from "./data/nva_ids.json" with { type: "json" };
 
 interface RefreshMetdata {
@@ -16,6 +16,7 @@ import { isHandleUrl } from "./pub/handle.ts";
 import { NvaPublication } from "./nva/types.ts";
 import { getNvaPublication } from "./nva/api.ts";
 import { isRejected } from "./pub/reject.ts";
+import { refreshProjects } from "./nva/project.ts";
 
 async function* nvaIdentifiersInKvPubs() {
   for await (const { value } of kv.list<Pub>({ prefix: ["pub"] })) {
@@ -87,7 +88,7 @@ export const refreshNvaPubs = async () => {
   console.warn("refresNvaPubs", { params, refresh: lastRefresh });
   const t0 = performance.now();
 
-  const insert = async (nva: NvaPublication, kind: string) => {
+  const upsert = async (nva: NvaPublication, kind: string) => {
     ids.add(nva.identifier);
 
     // NVA identifier may be fresh, but the pub may exist under DOI or handle
@@ -99,7 +100,7 @@ export const refreshNvaPubs = async () => {
     }
     const pubInKv = await getPub(pub.id);
     const has = pubInKv && pubInKv.id === pub.id ? true : false;
-    if (has === false) {
+    if (has === false || "force" === kind) {
       const { id, type, title, published } = pub;
       const akvaplanists = (await findIdentities(pub?.authors))?.filter((a) =>
         a?.identity
@@ -119,26 +120,26 @@ export const refreshNvaPubs = async () => {
         title,
         nva.identifier,
       );
-      await insertNvaPub(nva);
+      await upsertNvaPub(nva);
     }
   };
 
   for await (const id of manualListOfNvaIds) {
     if (!ids.has(id)) {
       const nva = await getNvaPublication({ id });
-      await insert(nva, "manual");
+      await upsert(nva, "force");
     }
   }
 
   for await (const nva of akvaplanistPubsInNva(params)) {
     if (!ids.has(nva.identifier)) {
-      await insert(nva, "akvaplanist");
+      await upsert(nva, "akvaplanist");
     }
   }
 
   for await (const nva of akvaplanPubsInNva(params)) {
     if (!ids.has(nva.identifier)) {
-      await insert(nva, "akvaplan");
+      await upsert(nva, "akvaplan");
     }
   }
 
@@ -160,5 +161,6 @@ export const refresh = async () => {
 };
 
 if (import.meta.main) {
-  await refresh();
+  await refreshProjects();
+  //await refresh();
 }
