@@ -9,11 +9,3 @@ export const isHandleUrl = (hdl: URL | string | undefined) => {
 
 export const handleUrlString = (h: string | URL) =>
   new URL(new URL(h).pathname, "https://hdl.handle.net").href;
-
-export const getHandleLocation = async (id: string) => {
-  const r = await fetch(id);
-  if (r && r.ok) {
-    const { url } = r;
-    return url;
-  }
-};
