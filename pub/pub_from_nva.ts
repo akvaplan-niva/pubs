@@ -17,6 +17,7 @@ import { ndjson } from "../util/ndjson.ts";
 
 export const pubFromNva = async (nva: NvaPublication) => {
   const {
+    doi,
     entityDescription,
     publishedDate,
     modifiedDate,
@@ -28,11 +29,13 @@ export const pubFromNva = async (nva: NvaPublication) => {
   const link = associatedArtifacts?.find(({ type }) =>
     "AssociatedLink" === type
   );
-  const url = link ? String(link.id) : undefined;
 
-  const doiNorm = url && isDoiUrl(url) ? doiName(url) : undefined;
+  // Find id & url
+  const url = link ? String(link.id) : extractId(nva); // The fallback sets the handle as url
+  const doiNormFromUrl = url && isDoiUrl(url) ? doiName(url) : undefined;
+  const doiNorm = doi && isDoiUrl(doi) ? doiName(doi) : doiNormFromUrl;
 
-  const id = url && isDoiUrl(url) ? doiUrlString(url) : extractId(nva);
+  const id = doiNorm ? doiUrlString(doiNorm) : extractId(nva);
 
   const title = extractTitle({ entityDescription });
 
@@ -236,7 +239,7 @@ export const extractId = (
     ? doiUrlString(doi)
     : hdl && (isHandleUrl(hdl) || isHandle(hdl as string))
     ? handleUrlString(hdl)
-    : nvaUrlString(id);
+    : nvaPublicationLandingPage(id);
 };
 
 const extractTitle = (
@@ -286,7 +289,7 @@ const isEvent = (nva: NvaPublication) =>
     extractNvaType(nva),
   );
 
-const nvaUrlString = (id: string | URL) =>
+export const nvaPublicationLandingPage = (id: string | URL) =>
   new URL(id, "https://nva.sikt.no/registration/").href;
 
 //@todo extractPdfs: There seems to be no permanent URLs for public files in NVA

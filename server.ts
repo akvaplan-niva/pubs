@@ -1,6 +1,5 @@
 #!/usr/bin/env -S deno serve --env-file --allow-env --watch-hmr --port 7770 --allow-net 
 // allow-net: api.crossref.org,akvaplanists.deno.dev,api.deno.com,api.cristin.no
-
 import type { Pub } from "./pub/types.ts";
 import type { CrossrefWork } from "./crossref/types.ts";
 import { type Route, route } from "@std/http";
@@ -22,6 +21,10 @@ Deno.cron("Refresh NVA", "57 * * * *", async () => {
   console.warn("Refresh NVA", new Date());
   await refreshNvaPubs();
 });
+// @ts-expect-error monkey patch Set
+Set.prototype.toJSON = function () {
+  return [...this];
+};
 
 const routes: Route[] = [
   {
@@ -50,6 +53,22 @@ const routes: Route[] = [
     handler: nvaPub,
   },
   {
+    pattern: new URLPattern({ pathname: "/pub_rel_project_nva" }),
+    handler: (_request, _info, result) =>
+      streamKvListValues(
+        { prefix: ["pub_rel_project_nva"] },
+        result,
+      ),
+  },
+  {
+    pattern: new URLPattern({ pathname: "/pub_rel_project_nva/:id" }),
+    handler: (_request, _info, result) =>
+      streamKvListValues(
+        { prefix: ["pub_rel_project_nva", Number(pathParam(result, "id"))] },
+        result,
+      ),
+  },
+  {
     pattern: new URLPattern({ pathname: "/nva" }),
     handler: (_request, _info, result) =>
       streamKvListValues<Pub>({ prefix: ["nva"] }, result),
@@ -65,22 +84,6 @@ const routes: Route[] = [
     handler: (_request, _info, result) =>
       streamKvListValues(
         { prefix: ["by", pathParam(result, "id") as string] },
-        result,
-      ),
-  },
-  {
-    pattern: new URLPattern({ pathname: "/cristinproject_pub" }),
-    handler: (_request, _info, result) =>
-      streamKvListValues<CrossrefWork>(
-        { prefix: ["cristinproject_pub"] },
-        result,
-      ),
-  },
-  {
-    pattern: new URLPattern({ pathname: "/cristinproject_pub/:id" }),
-    handler: (_request, _info, result) =>
-      streamKvListValues(
-        { prefix: ["cristinproject_pub", Number(pathParam(result, "id"))] },
         result,
       ),
   },
