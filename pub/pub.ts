@@ -27,7 +27,7 @@ import { ndjson } from "../util/ndjson.ts";
 import { patchInOpenAccessMetadataToPub } from "../openalex/api.ts";
 import { getHandleLocation, isHandleUrl } from "./handle.ts";
 import { nvaCristinPersonUrl } from "../nva/cristin_person.ts";
-import { getNvaPublication, isNvaUrl, nvaPubUrl } from "../nva/api.ts";
+import { getPublicationFromNvaApi, isNvaUrl, nvaPubUrl } from "../nva/api.ts";
 
 const pubkey = (pub: Pick<Pub, "id">) => ["pub", pub.id] as const;
 
@@ -109,11 +109,9 @@ export const _deleteIdentities = async (pub) => {
   //   }
   // }
 };
-export const getPub = async (id: string) => {
-  if (!await isRejected(id)) {
-    return (await kv.get<Pub>(pubkey({ id })))?.value;
-  }
-};
+export const getPub = async (id: string) =>
+  (await kv.get<Pub>(pubkey({ id })))?.value;
+
 export const getPubAndReidentify = async (id: string) => {
   const pub = await getPub(id);
   if (pub) {
@@ -175,7 +173,7 @@ export const upsertNvaPub = async (nvapub: NvaPublication) => {
         existing.nva,
       );
       existing.nva = nva;
-      await updatePub(existing);
+      await savePub(existing);
     } else {
       // If DOI, use Crossref metadata, but add NVA id; useful to find PDF and to lookup parents and siblings for book chapters like https://doi.org/10.26530/oapen_627870 => https://test.nva.sikt.no/registration/01907a80beda-b1a7fe47-42b8-4fa1-8898-783543242ddd
       const reg = await getRegistrar(doi);
@@ -188,7 +186,7 @@ export const upsertNvaPub = async (nvapub: NvaPublication) => {
       }
     }
   } else {
-    await updatePub(pub);
+    await savePub(pub);
   }
 };
 
@@ -302,10 +300,10 @@ const augmentPub = async (pub: Pub) => {
 const prepareAtomicSetPub = async (
   pub: Pub,
 ) => {
-  const rejected = await isRejected(pub.id);
-  if (rejected) {
-    return;
-  }
+  // const rejected = await isRejected(pub.id);
+  // if (rejected) {
+  //   return;
+  // }
   if (pub.title === "") {
     pub.title = pub.id;
   }
@@ -316,6 +314,15 @@ const prepareAtomicSetPub = async (
   if (cause) {
     console.error({ cause, pub });
     throw RangeError(`Invalid publication: ${pub.id}`, { cause });
+  }
+
+  if (pub.nva) {
+    try {
+      const nvapub = await getPublicationFromNvaApi({ id: pub.nva });
+      await saveNvaPublication(nvapub);
+    } catch {
+      //just continue
+    }
   }
 
   const key = pubkey(pub);
@@ -347,31 +354,34 @@ export const deleteIdInsertNvaDoi = async (id: string) => {
 };
 
 export const deleteNvaIdInsertNvaDoi = async (id: string) => {
-  const nva = await getNvaPublication({ id });
+  const nva = await getPublicationFromNvaApi({ id });
   const pub = await pubFromNva(nva);
+  console.warn(pub);
   if (nva && pub && isDoiUrl(pub.id)) {
-    await deletePub(id);
-    const maybe = await getPub(pub.id);
-    if (!maybe) {
-      console.warn(`DELETE ${id} INSERT ${pub.id}`);
-      await insertPub(pub);
-    } else {
-      console.warn(pub);
-      console.warn(`DELETE ${id} UPDATE ${pub.id}`);
-      await updatePub(pub);
-    }
+    // await deletePub(id);
+    // const maybe = await getPub(pub.id);
+    // if (!maybe) {
+    //   console.warn(`DELETE ${id} INSERT ${pub.id}`);
+    //   await insertPub(pub);
+    // } else {
+    //   console.warn(pub);
+    //   console.warn(`DELETE ${id} UPDATE ${pub.id}`);
+    //   await updatePub(pub);
+    // }
   }
 };
 
 export const deleteHandleInsertNvaDoi = async (id: string) => {
   const landing = await getHandleLocation(id);
   if (landing) {
-    console.warn(`${id} -> NVA ${landing}`);
     console.assert(landing?.startsWith("https://nva.sikt.no/registration/"));
     const nvaId = landing?.split("/").at(-1)!;
 
-    const nva = await getNvaPublication({ id: nvaId });
+    const nva = await getPublicationFromNvaApi({ id: nvaId });
     const pub = await pubFromNva(nva);
+    console.warn(
+      `${id} (${pub.published}) [${pub.container}] "${pub.title}"`,
+    );
     if (nva && pub && isDoiUrl(pub.id)) {
       console.warn(`DELETE ${id} INSERT ${pub.id}`);
       await deletePub(id);
@@ -380,7 +390,7 @@ export const deleteHandleInsertNvaDoi = async (id: string) => {
   }
 };
 
-export const updatePub = async (
+export const savePub = async (
   pub: Pub,
   versionstamp?: string,
 ) => {
@@ -396,6 +406,17 @@ export const updatePub = async (
   }
 };
 
+export const saveNvaPublication = async (nva: NvaPublication) => {
+  const { identifier } = nva;
+  if (JSON.stringify(nva).length < 65535) {
+    await kv.set(["nva", identifier], nva);
+  } else {
+    kv.set(["nva-error", identifier], {
+      error: "Metadata size > 65535 bytes",
+      text: JSON.stringify(nva).substring(0, 9999),
+    });
+  }
+};
 // export const setPubCount = async (n: number) =>
 //   await kv.set(["count", "pub"], new Deno.KvU64(BigInt(n)));
 
@@ -473,7 +494,7 @@ if (import.meta.main) {
       case "put":
       case "set": {
         const pub = JSON.parse(text);
-        ndjson(await updatePub(pub));
+        ndjson(await savePub(pub));
         break;
       }
       case "get":

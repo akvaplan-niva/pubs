@@ -49,6 +49,7 @@ export const pubSchema = object({
   printed: string().optional(),
   type: string().required(),
   container: string().optional(),
+  code: string().optional(),
   title: string().required(),
   authors: array().required().of(authorOrContributorSchema),
   contributors: array().optional().of(authorOrContributorSchema),

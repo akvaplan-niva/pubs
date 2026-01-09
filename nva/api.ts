@@ -54,7 +54,7 @@ export const downloadPublicFile = async (
   const url = new URL(`/download/public/${id}/files/${file}`, base);
   const req = buildApiRequest({ url });
 
-  const { presignedDownloadUrl } = await getNva<
+  const { presignedDownloadUrl } = await getNvaPublicationFromApi<
     { presignedDownloadUrl: URL }
   >(req);
 
@@ -78,12 +78,12 @@ export const downloadPublicFile = async (
 export const nvaPubUrl = (id: string) =>
   isNvaUrl(id) ? new URL(id) : new URL(`/publication/${id}`, base);
 
-export const getNvaPublication = async (
+export const getPublicationFromNvaApi = async (
   { id, token }: { id: string; token?: string },
 ) => {
   const url = isNvaUrl(id) ? id : new URL(`/publication/${id}`, base);
   const req = buildApiRequest({ url, token });
-  return await getNva<NvaPublication>(req);
+  return await getNvaPublicationFromApi<NvaPublication>(req);
 };
 
 export const searchNvaForId = async (id: string) => {
@@ -132,7 +132,9 @@ export const fetchNva = async (
   return res;
 };
 
-export const getNva = async <T>(inp: Request | URL | string) => {
+export const getNvaPublicationFromApi = async <T>(
+  inp: Request | URL | string,
+) => {
   const headers = { accept: "application/json" };
   const res = await fetchNva(inp, { headers });
   return await res.json() as T;
@@ -142,6 +144,6 @@ if (import.meta.main) {
   const [_id] = Deno.args;
   if (_id) {
     const id = isNvaUrl(_id) ? _id : buildPublicationUrl(_id).href;
-    ndjson(await getNvaPublication({ id }));
+    ndjson(await getPublicationFromNvaApi({ id }));
   }
 }

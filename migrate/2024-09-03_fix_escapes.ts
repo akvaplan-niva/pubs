@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
 
 import { doiUrlString } from "../doi/url.ts";
-import { getPub, updatePub } from "../pub/pub.ts";
+import { getPub, savePub } from "../pub/pub.ts";
 
 const titles = new Map([
   [
@@ -53,7 +53,7 @@ export const fixEscapes = async () => {
     const pub = await getPub(doiUrlString(doi));
     if (pub && pub.title !== title) {
       pub.title = title;
-      const res = await updatePub(pub);
+      const res = await savePub(pub);
       console.warn({ doi, title }, res);
     }
     ++i;
@@ -65,7 +65,7 @@ export const fixEscapes = async () => {
     const pub = await getPub(doiUrlString(doi));
     if (pub && pub.container !== container) {
       pub.container = container;
-      const res = await updatePub(pub);
+      const res = await savePub(pub);
       console.warn({ doi, container }, res);
     }
     ++j;

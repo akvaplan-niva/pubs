@@ -1,4 +1,4 @@
-import { getPub, insertPub, updatePub, upsertNvaPub } from "../pub/pub.ts";
+import { getPub, insertPub, savePub, upsertNvaPub } from "../pub/pub.ts";
 import { pubFromNva } from "../pub/pub_from_nva.ts";
 
 export const resourcesForProjectNvaSearchUrl = (id: number) =>
@@ -74,7 +74,7 @@ export const refreshProjects = async () => {
               "diff",
               +pub.modified - +pubInKv.modified,
             );
-            await updatePub({ ...pubInKv, ...pub });
+            await savePub({ ...pubInKv, ...pub });
           }
         }
       }

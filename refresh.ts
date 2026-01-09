@@ -14,7 +14,7 @@ import { pubFromNva } from "./pub/pub_from_nva.ts";
 import type { Pub } from "./pub/types.ts";
 import { isHandleUrl } from "./pub/handle.ts";
 import { NvaPublication } from "./nva/types.ts";
-import { getNvaPublication } from "./nva/api.ts";
+import { getPublicationFromNvaApi } from "./nva/api.ts";
 import { isRejected } from "./pub/reject.ts";
 import { refreshProjects } from "./nva/project.ts";
 
@@ -126,7 +126,7 @@ export const refreshNvaPubs = async () => {
 
   for await (const id of manualListOfNvaIds) {
     if (!ids.has(id)) {
-      const nva = await getNvaPublication({ id });
+      const nva = await getPublicationFromNvaApi({ id });
       await upsert(nva, "force");
     }
   }

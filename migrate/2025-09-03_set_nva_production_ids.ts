@@ -5,7 +5,7 @@ import { kv } from "../kv/kv.ts";
 import { deleteNva, setNva, setNvaMissing } from "../kv/nva.ts";
 import { searchNvaForId } from "../nva/api.ts";
 import { isHandleUrl } from "../pub/handle.ts";
-import { updatePub } from "../pub/pub.ts";
+import { savePub } from "../pub/pub.ts";
 import { extractId, pubFromNva } from "../pub/pub_from_nva.ts";
 import type { Pub } from "../pub/types.ts";
 
@@ -41,7 +41,7 @@ export const findNvaIdWhenDoiOrHandle = async () => {
 
               await setNva(nvaPub);
               value.nva = identifier;
-              const res = await updatePub(value);
+              const res = await savePub(value);
               console.warn(res);
             }
           } else {

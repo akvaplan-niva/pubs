@@ -10,7 +10,11 @@ import type {
 } from "../nva/types.ts";
 
 import { Pub } from "./types.ts";
-import { getNva, getNvaPublication, isNvaUrl } from "../nva/api.ts";
+import {
+  getNvaPublicationFromApi,
+  getPublicationFromNvaApi,
+  isNvaUrl,
+} from "../nva/api.ts";
 import { Akvaplanist } from "../akvaplanists/types.ts";
 import { getFamilyGivenOfCristinPerson } from "../nva/cristin_person.ts";
 import { ndjson } from "../util/ndjson.ts";
@@ -24,7 +28,7 @@ export const pubFromNva = async (nva: NvaPublication) => {
     associatedArtifacts,
   } = nva;
 
-  const { reference } = entityDescription;
+  const { reference } = entityDescription ?? {};
 
   const link = associatedArtifacts?.find(({ type }) =>
     "AssociatedLink" === type
@@ -50,6 +54,10 @@ export const pubFromNva = async (nva: NvaPublication) => {
 
   const container = await extractOrFetchContainer(publicationContext);
 
+  const code = "seriesNumber" in publicationContext
+    ? publicationContext.seriesNumber
+    : undefined;
+
   const { publicationDate: { year, month, day } } = entityDescription;
 
   const _parent = "id" in publicationContext
@@ -58,7 +66,7 @@ export const pubFromNva = async (nva: NvaPublication) => {
 
   const parentInNva = isNvaUrl(_parent) &&
       new URL(_parent as string).pathname.startsWith("/publication/")
-    ? await getNva<NvaPublication>(_parent as string)
+    ? await getNvaPublicationFromApi<NvaPublication>(_parent as string)
     : undefined;
 
   const parent = parentInNva ? extractId(parentInNva) : undefined;
@@ -87,6 +95,7 @@ export const pubFromNva = async (nva: NvaPublication) => {
     type,
     published,
     container,
+    code,
     authors,
     contributors,
     projects,
@@ -177,7 +186,7 @@ const extractOrFetchContainer = async (
 
   if (["Anthology"].includes(type as string)) {
     if (id && !entityDescription) {
-      const parent = await getNva(id) as NvaPublication;
+      const parent = await getNvaPublicationFromApi(id) as NvaPublication;
       if (parent) {
         return extractTitle(parent);
       }
@@ -312,14 +321,14 @@ const typeFromNvaType = (nvapubtype: string) => {
   }
 };
 
-import { insertPub, updatePub } from "./pub.ts";
+import { insertPub, savePub } from "./pub.ts";
 import { kv } from "../kv/kv.ts";
 
 if (import.meta.main) {
   const [id, action] = Deno.args;
   if (id) {
     // NDJSON of pub after transform
-    const nva = await getNvaPublication({ id });
+    const nva = await getPublicationFromNvaApi({ id });
     const pub = await pubFromNva(nva);
     ndjson(pub);
 
@@ -335,7 +344,7 @@ if (import.meta.main) {
 
       case "update":
         await kv.set(nvakey, nva);
-        console.warn(await updatePub(pub));
+        console.warn(await savePub(pub));
         break;
     }
   }

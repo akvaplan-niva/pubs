@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
 import { kv } from "../kv/kv.ts";
-import { updatePub } from "../pub/pub.ts";
+import { savePub } from "../pub/pub.ts";
 import type { Pub } from "../pub/types.ts";
 
 export const addAkvaplanists = async () => {
@@ -9,7 +9,7 @@ export const addAkvaplanists = async () => {
     const { akvaplanists } = value;
     if (!akvaplanists) {
       console.warn(++i, "addAkvaplanists");
-      await updatePub(value);
+      await savePub(value);
     }
   }
 };

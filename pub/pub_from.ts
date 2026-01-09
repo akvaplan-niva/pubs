@@ -2,7 +2,7 @@
 
 import { doiName, isDoiName, isDoiUrl } from "../doi/url.ts";
 import { getCrossrefWork } from "../kv/crossref.ts";
-import { getNvaPublication } from "../nva/api.ts";
+import { getPublicationFromNvaApi } from "../nva/api.ts";
 import { pubFromCrossrefWork } from "./pub_from_crossref.ts";
 import { pubFromNva } from "./pub_from_nva.ts";
 
@@ -25,7 +25,7 @@ const crossref = async (params: string[]) => {
 };
 
 const nva = async (id: string) => {
-  const nva = await getNvaPublication({ id });
+  const nva = await getPublicationFromNvaApi({ id });
   const pub = await pubFromNva(nva);
   ndjson(pub);
 };

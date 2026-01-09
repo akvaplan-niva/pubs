@@ -1,5 +1,5 @@
 #!/usr/bin/env -S deno run --env-file --allow-env --allow-net
-import { getPub, updatePub } from "../pub/pub.ts";
+import { getPub, savePub } from "../pub/pub.ts";
 import type { Pub } from "../pub/types.ts";
 
 const authorReplacements: Pick<Pub, "id" | "authors">[] = [
@@ -87,7 +87,7 @@ export const replaceAuthors = async () => {
   for await (const { id, authors } of authorReplacements) {
     const pub = await getPub(id);
     if (pub) {
-      await updatePub({ ...pub, authors });
+      await savePub({ ...pub, authors });
     }
   }
 };

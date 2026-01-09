@@ -6,6 +6,8 @@ export const nvakey = (id: string) => ["nva", id];
 
 export const deleteNva = async (id: string) => await kv.delete(nvakey(id));
 
+export const getNva = async (id: string) => (await kv.get(nvakey(id)))?.value;
+
 export const setNva = async (nvapub: NvaPublication) => {
   if (nvapub) {
     const { identifier } = nvapub;
