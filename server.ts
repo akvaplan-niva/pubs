@@ -18,8 +18,8 @@ import {
 } from "./server_handlers.ts";
 
 Deno.cron("Refresh NVA", "57 * * * *", async () => {
-  console.warn("Cron NVA refresh (disabled)", new Date());
-  //await refreshNvaPubs();
+  console.log("NVA refresh started", new Date());
+  await refreshNvaPubs();
 });
 // @ts-expect-error monkey patch Set
 Set.prototype.toJSON = function () {
