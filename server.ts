@@ -1,9 +1,11 @@
 #!/usr/bin/env -S deno serve --env-file --allow-env --watch-hmr --port 7770 --allow-net 
 // allow-net: api.crossref.org,akvaplanists.deno.dev,api.deno.com,api.cristin.no
+
+import "./cron.ts";
 import type { Pub } from "./pub/types.ts";
 import type { CrossrefWork } from "./crossref/types.ts";
 import { type Route, route } from "@std/http";
-import { refreshNvaPubs } from "./refresh.ts";
+
 import {
   crossrefWork,
   doiPub,
@@ -17,10 +19,6 @@ import {
   streamKvListValues,
 } from "./server_handlers.ts";
 
-Deno.cron("Refresh NVA", "21 * * * *", async () => {
-  console.log("NVA refresh started", new Date());
-  await refreshNvaPubs();
-});
 // @ts-expect-error monkey patch Set
 Set.prototype.toJSON = function () {
   return [...this];
