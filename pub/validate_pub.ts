@@ -64,6 +64,7 @@ export const pubSchema = object({
   akvaplanists: AkvaplanistCount.optional(),
   parent: string().optional(),
   projects: array().optional().of(projectSchema),
+  abstract: string(),
 });
 
 export const validatePub = async (value: unknown) => {

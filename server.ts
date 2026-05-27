@@ -1,7 +1,7 @@
-#!/usr/bin/env -S deno serve --env-file --allow-env --watch-hmr --port 7770 --allow-net 
-// allow-net: api.crossref.org,akvaplanists.deno.dev,api.deno.com,api.cristin.no
+#!/usr/bin/env -S deno serve --env-file --allow-env --allow-read=./data --allow-net=api.crossref.org,akvaplanists.apn.deno.net,api.deno.com,api.cristin.no --watch-hmr --port 7770 
 
 import "./cron.ts";
+//import removeText from "./data/remove.txt" with { type: "text" };
 import type { Pub } from "./pub/types.ts";
 import type { CrossrefWork } from "./crossref/types.ts";
 import { type Route, route } from "@std/http";
@@ -18,11 +18,17 @@ import {
   send405,
   streamKvListValues,
 } from "./server_handlers.ts";
+import { deletePub } from "./pub/pub.ts";
 
 // @ts-expect-error monkey patch Set
 Set.prototype.toJSON = function () {
   return [...this];
 };
+const removeText = await Deno.readTextFile("./data/remove.txt");
+for (const id of removeText.trim().split("\n")) {
+  const result = await deletePub(id);
+  console.warn({ delete: id, result });
+}
 
 const routes: Route[] = [
   {
@@ -115,6 +121,8 @@ export default {
       case "GET":
       case "HEAD":
         return route(routes, send404)(request);
+      case "OPTIONS":
+        return new Response("", { status: 200 });
       default:
         return send405();
     }
