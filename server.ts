@@ -18,17 +18,18 @@ import {
   send405,
   streamKvListValues,
 } from "./server_handlers.ts";
-import { deletePub } from "./pub/pub.ts";
+
+//import { deletePub } from "./pub/pub.ts";
+// const removeText = await Deno.readTextFile("./data/remove.txt");
+// for (const id of removeText.trim().split("\n")) {
+//   const result = await deletePub(id);
+//   console.warn({ delete: id, result });
+// }
 
 // @ts-expect-error monkey patch Set
 Set.prototype.toJSON = function () {
   return [...this];
 };
-const removeText = await Deno.readTextFile("./data/remove.txt");
-for (const id of removeText.trim().split("\n")) {
-  const result = await deletePub(id);
-  console.warn({ delete: id, result });
-}
 
 const routes: Route[] = [
   {
