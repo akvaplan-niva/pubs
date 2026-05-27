@@ -21,6 +21,9 @@
     "pub_from_nva": "deno run --env-file --allow-env --allow-net pub/pub_from_nva.ts",
     "nva_publication": "./nva/api.ts",
     "nva_auth_token": "./nva/auth_access_token_kv.ts",
-    "test": "DENO_KV_PATH=':memory:' deno test --env-file --allow-env --allow-net=api.test.nva.aws.unit.no:443,akvaplanists.deno.dev"
+    "test": "deno test --allow-env --allow-read=./data --allow-net=api.nva.unit.no:443,akvaplanists.apn.deno.net"
+  },
+  "deploy": {
+    "org": "apn"
   }
 }

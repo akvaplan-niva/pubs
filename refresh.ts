@@ -85,7 +85,7 @@ export const refreshNvaPubs = async () => {
     }
     : undefined;
   let found = 0;
-  console.warn("refresNvaPubs", { params, refresh: lastRefresh });
+  console.warn("refreshNvaPubs", { params, refresh: lastRefresh });
   const t0 = performance.now();
 
   const upsert = async (nva: NvaPublication, kind: string) => {

@@ -1,72 +1,35 @@
 # Akvaplan-niva pubs
 
-Deno project for managing Akvaplan-niva's publications
+Deno project for managing Akvaplan-niva's
+[publications](https://akvaplan.no/en/pubs)
 
-## Data service
+Service URL: https://pubkv.apn.deno.net/pub
 
-The [data service](https://pubs.deno.dev/pub) is used as backend for
-https://akvaplan.no/en/pubs
+## Development
 
-### Publications
+```sh
+deno task dev
+```
 
-List publications: `/pub`: https://pubs.deno.dev/pub (use `?limit=-1` to list
-all)
+## Data
 
-Get metadata: `/pub/:id`
+The production database is persisted in Deno Deploy KV.
 
-Examples:
+NVA is now the only data source and is updated via [cron.ts] in production.
 
-- doi: https://pubs.deno.dev/pub/https://doi.org/10.1088/1748-9326/9/11/114021
-- handle: https://pubs.deno.dev/pub/https://hdl.handle.net/10037/28898
-- nva:
-  `/pub/https://api.test.nva.aws.unit.no/publication/01907a69a2c5-c2cdce45-0c25-4b84-8913-c2ad1a8354c6`
+Manual NVA refresh:
 
-### Akvaplanists
+```sh
+deno task refresh
+```
 
-Get works by Akvaplanist: `/by/:id`: https://pubs.deno.dev/by/aki?limit=-1
+## Config
 
-## Data flow
+Optional, see [`nva/config.ts`](nva/config.ts) for possibe `env` variables.
 
-Case: _adding a new employee_:
+## Inclusion criteria
 
-1. First, make sure the person is in the akvaplanist service (), preferably with
-   NVA identifier.
-2. `deno task by $id`
-
-### Adding pubs
-
-### Remove pubs
-
-### Akvaplanists
-
-Sometimes former employees are found after the pub is inserted. Name detection
-then needs to be re-run. We can limit the target by at least family name…
-
-Also remove by!
-
-### State
-
-### Persistence
-
-The production database is persisted in Deno Deploy's
-[KV](https://docs.deno.com/deploy/kv/manual/)
-
-### Bootstrap
-
-`./kv/bootstrap.ts`
-
-### Data refresh
-
-`deno task refresh`
-
-New publications are automatically added by polling Norway's
-[National research archive](https://nva.unit.no) via the
-[NVA API](https://api.nva.unit.no): see `kv/refresh.ts`
-
-This project replaces [https://github.com/akvaplan-niva/dois](dois), using a
-backwards-compatible format ("slim").
-
-### Inclusion criteria
+Before NVA integrayion, the following inclusion criteria were used:
 
 Any published work where
 
@@ -81,20 +44,3 @@ including works pre/post-dating employment.
 
 - https://doi.org/10.3897/zookeys.181.2712
 - https://hdl.handle.net/11250/2449846
-
-## Compare local and production
-
-```sh
-$ (base) che@:~/akvaplan-niva/pubs$ cat <(./kv/_list.ts pub | nd-map d.key[1] | nd-map '{id:d}') <(curl -s https://pubs.deno.dev/pub?limit=-1 | nd-map d.value | nd-map --select id,title) | nd-group d.id | nd-filter 'd[1].length !== 2'
-["https://doi.org/10.1139/cjfas-56-8-1370",[{"id":"https://doi.org/10.1139/cjfas-56-8-1370"}]]
-["https://doi.org/10.1016/j.chemgeo.2018.05.040",[{"id":"https://doi.org/10.1016/j.chemgeo.2018.05.040","title":"The GEOTRACES Intermediate Data Product 2017"}]]
-["https://doi.org/10.1139/f99-075",[{"id":"https://doi.org/10.1139/f99-075","title":"Effect of temperature on the P4501A response in winter- and summer-acclimated Arctic char (<i>Salvelinus alpinus</i>) after oral benzo[a]pyrene exposure"}]]
-```
-
-## How many DOIs are in NVA
-
-```sh
-$ ./kv/_list.ts pub | nd-map d.value | nd-filter 'd.doi?.length>0' | nd-count '{ nva: d.nva?.length>0 }'
-{"nva":false,"count":712}
-{"nva":true,"count":1015}
-```
