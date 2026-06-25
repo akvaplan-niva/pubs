@@ -4,7 +4,7 @@ import { Akvaplanist } from "./types.ts";
 
 const base = Deno.env.has("AKVAPLANISTS")
   ? Deno.env.get("AKVAPLANISTS")
-  : "https://akvaplanists.deno.dev";
+  : "https://akvaplanists.apn.deno.net";
 export const akvaplanistsServiceUrl = (prefix: string = "") =>
   new URL(`/${prefix}?format=json`, base);
 
