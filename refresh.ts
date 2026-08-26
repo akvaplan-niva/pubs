@@ -78,6 +78,7 @@ export const refreshNvaPubs = async () => {
 
   const lr = await kv.get<RefreshMetdata>(["refresh", "nva"]);
   const lastRefresh = lr?.value;
+  console.warn(lastRefresh);
 
   const params = lastRefresh
     ? {
@@ -161,6 +162,6 @@ export const refresh = async () => {
 };
 
 if (import.meta.main) {
-  await refreshProjects();
+  //await refreshProjects();
   await refresh();
 }

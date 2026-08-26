@@ -5,6 +5,7 @@ export interface Akvaplanist extends PubContributor {
   orcid?: string;
   openalex?: string;
   spelling?: AkvaplanistSpelling;
+  cristin?: number;
 }
 
 /**

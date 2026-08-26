@@ -43,7 +43,8 @@ const nvaProjectIds = async () => {
 };
 
 // Projects are not included in organisation portfolio,
-// so works with only external authors would not be included without looking in the project output
+// so works with only external authors would not be included without
+// looking in the project output
 export const refreshProjects = async () => {
   let i = 0;
   const ids = await nvaProjectIds();

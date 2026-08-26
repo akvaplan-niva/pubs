@@ -1,4 +1,7 @@
-#!/usr/bin/env -S deno serve --env-file --allow-env --allow-read=./data --allow-net=api.crossref.org,akvaplanists.apn.deno.net,api.deno.com,api.cristin.no --watch-hmr --port 7770 
+#!/usr/bin/env -S deno serve --env-file --allow-env --allow-read=./data --allow-net --watch-hmr --port 7770
+
+// May access:
+//--allow-net=api.crossref.org,akvaplanists.apn.deno.net,api.deno.com
 
 import "./cron.ts";
 //import removeText from "./data/remove.txt" with { type: "text" };

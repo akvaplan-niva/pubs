@@ -136,7 +136,7 @@ export const upsertNvaPub = async (nvapub: NvaPublication) => {
   const pub = await pubFromNva(nvapub);
 
   const { id, nva } = pub;
-  console.warn("upsertNvaPub", id, nva);
+  console.warn("Inserting/updating NVA publication", id, nva);
   if (nva) {
     if (JSON.stringify(nvapub).length < 65535) {
       await kv.set(["nva", nva], nvapub);
@@ -254,7 +254,7 @@ export const insertPubs = async (pubs: Pub[]) => {
 // deno-lint-ignore no-unused-vars
 const wipePreviusIdentities = ({ identity, ...a }: PubContributor) => a;
 
-const augmentPub = async (pub: Pub) => {
+export const augmentPub = async (pub: Pub) => {
   pub = structuredClone(pub);
   if (isDoiUrl(pub.id) && !isDoiName(pub.doi)) {
     pub.doi = doiName(pub.id);

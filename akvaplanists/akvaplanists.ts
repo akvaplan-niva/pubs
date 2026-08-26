@@ -51,3 +51,12 @@ export const createNameMap = async () => {
   }
   return nameLookup;
 };
+
+export async function* genAkvaplanistsWithNvaId() {
+  const url = akvaplanistsServiceUrl("");
+  for await (const akvaplanist of fetchAndStreamJson<Akvaplanist>(url)) {
+    if (akvaplanist && akvaplanist?.cristin! > 0) {
+      yield akvaplanist;
+    }
+  }
+}
